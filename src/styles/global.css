@@ -1,0 +1,38 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f7f8fa;
+  color: #172033;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.loading, .empty-state, .page-placeholder {
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.empty-state h2 {
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  color: #64748b;
+  margin-bottom: 25px;
+}

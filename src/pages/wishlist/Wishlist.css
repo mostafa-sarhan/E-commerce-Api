@@ -1,0 +1,103 @@
+.wishlist-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: auto;
+  min-width: 150px;
+  margin: 10px 0;
+  padding: 12px 22px;
+  border: 1px solid #2563eb;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.wishlist-button:hover {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
+}
+
+.wishlist-button:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15);
+}
+
+.wishlist-button:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.2);
+  outline-offset: 3px;
+}
+
+.wishlist-button.active {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+.wishlist-button.active:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.remove-button {
+  width: 100%;
+  margin-top: 18px;
+  padding: 12px 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.remove-button:hover {
+  background: #fff1f2;
+  color: #e11d48;
+  border-color: #fecdd3;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(225, 29, 72, 0.12);
+}
+
+.remove-button:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(225, 29, 72, 0.1);
+}
+
+.remove-button:focus-visible {
+  outline: 3px solid rgba(225, 29, 72, 0.18);
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  .remove-button {
+    padding: 11px 15px;
+    font-size: 13px;
+  }
+}

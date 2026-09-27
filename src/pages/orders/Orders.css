@@ -1,0 +1,83 @@
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.order-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 15px;
+  padding: 25px;
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+
+.order-header span, .order-info span {
+  display: block;
+  color: #64748b;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+
+.order-header h3 {
+  font-size: 15px;
+  word-break: break-all;
+}
+
+.order-info {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.order-info strong {
+  color: #172033;
+}
+
+.order-status {
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:20px;
+  background:#eff6ff;
+  color:#1d4ed8;
+  font-size:12px;
+  font-weight:700
+}
+
+.order-progress {
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+  flex-wrap:wrap
+}
+
+.order-progress span {
+  padding:6px 9px;
+  border-radius:8px;
+  background:#f1f5f9;
+  color:#64748b;
+  font-size:11px
+}
+
+.order-progress span.active {
+  background:#dcfce7;
+  color:#15803d
+}
+
+.forgot-button {
+  border:0;
+  background:transparent;
+  color:#2563eb;
+  font-weight:600;
+  cursor:pointer;
+  margin:12px auto;
+  display:block
+}
