@@ -4,16 +4,11 @@ import { Link } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthContext";
 
-import {
-  getUserOrders,
-  getLocalUserOrders,
-} from "../../services/api/orderApi";
+import { getUserOrders } from "../../services/api/orderApi";
 
 import { getWishlist } from "../../services/api/wishlistApi";
 
 import { getProducts } from "../../services/api/productApi";
-
-import { getRole } from "../../utils/roles";
 
 import "./Dashboard.css";
 
@@ -29,43 +24,21 @@ function CustomerDashboard() {
 
   useEffect(() => {
     async function load() {
-      const [
-        orders,
-        wishlist,
-        products,
-      ] = await Promise.allSettled([
-        user?._id
-          ? getUserOrders(user._id)
-          : Promise.resolve({
-              data: [],
-            }),
-        getWishlist(),
-        getProducts("?limit=1"),
-      ]);
+      const [orders, wishlist, products] =
+        await Promise.allSettled([
+          user?._id
+            ? getUserOrders(user._id)
+            : Promise.resolve({
+                data: [],
+              }),
+          getWishlist(),
+          getProducts("?limit=1"),
+        ]);
 
-      const remoteOrders =
+      const orderData =
         orders.status === "fulfilled"
           ? orders.value?.data || []
           : [];
-
-      const localOrders =
-        getLocalUserOrders(
-          user?._id || user?.email
-        );
-
-      const orderMap = new Map(
-        [
-          ...localOrders,
-          ...remoteOrders,
-        ].map((order) => [
-          order._id,
-          order,
-        ])
-      );
-
-      const orderData = [
-        ...orderMap.values(),
-      ];
 
       const wishlistData =
         wishlist.status === "fulfilled"
@@ -79,15 +52,12 @@ function CustomerDashboard() {
 
       setStats({
         orders: orderData.length,
-        wishlist:
-          wishlistData.length,
+        wishlist: wishlistData.length,
         products: productCount,
         spent: orderData.reduce(
           (sum, order) =>
             sum +
-            Number(
-              order.totalOrderPrice || 0
-            ),
+            Number(order.totalOrderPrice || 0),
           0
         ),
       });
@@ -186,107 +156,26 @@ function CustomerDashboard() {
   );
 }
 
-function SellerDashboard() {
-  return (
-    <div className="dashboard-grid">
-      <Link
-        to="/seller/products"
-        className="dashboard-card"
-      >
-        <span>📦</span>
-        <h3>Products</h3>
-        <p>
-          View and manage your seller
-          catalog.
-        </p>
-      </Link>
-
-      <Link
-        to="/seller/inventory"
-        className="dashboard-card"
-      >
-        <span>📊</span>
-        <h3>Inventory</h3>
-        <p>
-          Monitor live stock and low-stock
-          items.
-        </p>
-      </Link>
-
-      <Link
-        to="/seller/orders"
-        className="dashboard-card"
-      >
-        <span>🛒</span>
-        <h3>Orders</h3>
-        <p>
-          Review orders and their
-          statuses.
-        </p>
-      </Link>
-
-      <Link
-        to="/seller/customers"
-        className="dashboard-card"
-      >
-        <span>👥</span>
-        <h3>Customers</h3>
-        <p>
-          See customer information
-          available in orders.
-        </p>
-      </Link>
-
-      <Link
-        to="/seller/reviews"
-        className="dashboard-card"
-      >
-        <span>⭐</span>
-        <h3>Reviews</h3>
-        <p>
-          Review customer ratings and
-          feedback.
-        </p>
-      </Link>
-    </div>
-  );
-}
-
 function Dashboard() {
-  const {
-    user,
-    role,
-  } = useAuth();
+  const { user, role } = useAuth();
 
-  const currentRole = getRole(user);
-
-  if (currentRole === "admin") {
+  if (role === "admin") {
     return <></>;
   }
 
   return (
     <main className="dashboard-page">
       <div className="page-header">
-        <p>
-          {currentRole.toUpperCase()} DASHBOARD
-        </p>
+        <p>CUSTOMER DASHBOARD</p>
 
         <h1>
           Welcome, {user?.name || "User"}
         </h1>
 
-        <span>
-          {currentRole === "seller"
-            ? "Manage your store operations."
-            : "Manage your shopping activity."}
-        </span>
+        <span>Manage your shopping activity.</span>
       </div>
 
-      {currentRole === "seller" ? (
-        <SellerDashboard />
-      ) : (
-        <CustomerDashboard />
-      )}
+      <CustomerDashboard />
     </main>
   );
 }

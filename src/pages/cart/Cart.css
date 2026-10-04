@@ -105,13 +105,74 @@
 
 .checkout-button {
   display: block;
+  width: 100%;
   text-align: center;
   background: #2563eb;
   color: white;
   padding: 14px;
+  border: 0;
   border-radius: 8px;
+  font: inherit;
   font-weight: 700;
+  cursor: pointer;
   margin-top: 25px;
+  transition: background 0.15s ease;
+}
+
+.checkout-button:hover {
+  background: #1d4ed8;
+}
+
+/* Signed-out visitors keep their cart and only sign in here, at the
+   moment they actually try to complete the order. */
+.cart-summary > .cart-signin {
+  display: block;
+  margin: 16px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+.cart-signin p {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #64748b;
+}
+
+.cart-signin-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.cart-signin-login,
+.cart-signin-register {
+  flex: 1;
+  display: block;
+  padding: 11px 12px;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #0f172a;
+  cursor: pointer;
+}
+
+.cart-signin-register {
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+.cart-signin-login:hover {
+  background: #f1f5f9;
+}
+
+.cart-signin-register:hover {
+  background: rgba(37, 99, 235, 0.08);
 }
 
 .coupon-box {

@@ -1,19 +1,13 @@
+/* Legacy cross-page breakpoints.
+   Rules were kept only for classes that still exist. Anything
+   removed here had no matching class in any component.
+
+   .products-grid is deliberately absent: it now owns a single
+   explicit breakpoint ladder in pages/products/Products.css
+   (1 / 2 / 3 / 4 columns). Legacy max-width overrides here used
+   to fight those rules and force 4 columns down to 320px. */
+
 @media (max-width: 1000px) {
-  .products-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  .deals-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-  .category-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-  .shopping-features {
-    grid-template-columns: 1fr 1fr;
-  }
-  .filters {
-    grid-template-columns: 1fr 1fr;
-  }
   .dashboard-grid {
     grid-template-columns: 1fr 1fr;
   }
@@ -23,12 +17,8 @@
   .checkout-layout {
     grid-template-columns: 1fr;
   }
-  .product-details,   .cart-layout {
+  .cart-layout {
     grid-template-columns: 1fr;
-  }
-  .featured-banner {
-    flex-direction: column;
-    align-items: flex-start;
   }
   .footer-content {
     grid-template-columns: 1fr;
@@ -36,74 +26,20 @@
 }
 
 @media (max-width: 750px) {
-  .nav-container {
-    flex-wrap: wrap;
-  }
-  .nav-container nav {
-    order: 3;
-    width: 100%;
-    justify-content: center;
-    gap: 15px;
-    flex-wrap: wrap;
-  }
-  .hero h1 {
-    font-size: 42px;
-  }
-  .products-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-  .deals-grid {
-    grid-template-columns: 1fr;
-  }
-  .category-grid {
-    grid-template-columns: 1fr;
-  }
-  .shopping-features {
-    grid-template-columns: 1fr 1fr;
-  }
-  .hero-buttons {
-    flex-wrap: wrap;
-  }
   .order-info {
     grid-template-columns: 1fr 1fr;
   }
   .order-header {
     flex-direction: column;
   }
-  .review-form {
-    flex-direction: column;
-  }
 }
 
 @media (max-width: 500px) {
-  .nav-actions {
-    width: 100%;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-  .products-grid,   .filters,   .shopping-features {
-    grid-template-columns: 1fr;
-  }
   .cart-item {
     flex-direction: column;
   }
   .cart-item img {
     width: 100%;
     height: 180px;
-  }
-  .hero {
-    min-height: 500px;
-  }
-  .hero h1 {
-    font-size: 36px;
-  }
-  .section-heading h2 {
-    font-size: 30px;
-  }
-  .ready-section h2 {
-    font-size: 32px;
-  }
-  .featured-banner {
-    padding: 30px;
   }
 }

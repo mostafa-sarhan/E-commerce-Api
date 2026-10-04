@@ -1,128 +1,330 @@
-.products-page, .cart-page, .product-details, .auth-page {
-  max-width: 1250px;
-  margin: auto;
-  padding: 70px 25px;
-}
+/* =========================================================
+   VOLTIX SHOP CARD
 
-.page-header {
-  margin-bottom: 35px;
-}
+   Layout contract (this is what keeps every card identical):
+     .store-card          column flex, position relative
+     .store-card-media    fixed aspect-ratio, never resized
+     .store-card-content  flex 1, five fixed-height rows
+     .store-card-actions  flex none, always the last row
 
-.page-header p {
-  color: #2563eb;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
+   Every content row carries a min-height that matches its
+   own line box, so a card with no discount / no stock chip /
+   no brand occupies exactly the same vertical space as one
+   with all of them. No fixed card height, no clipping.
+   ========================================================= */
 
-.page-header h1 {
-  font-size: 38px;
-  margin: 8px 0 10px;
-}
-
-.page-header span {
-  color: #64748b;
-}
-
-/* Filters */
-.filters {
-  display: grid;
-  grid-template-columns: 2fr 1.5fr 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 35px;
-}
-
-.filters input, .filters select {
-  padding: 14px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  background: white;
-  outline: none;
-}
-
-.filters input:focus, .filters select:focus {
-  border-color: #2563eb;
-}
-
-/* Products Grid */
-.products-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 22px;
-}
-
-/* Product Card */
-.product-card {
-  background: white;
-  border-radius: 14px;
-  border: 1px solid #e5e7eb;
-  overflow: hidden;
-  transition: 0.25s;
-}
-
-.product-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.12);
-}
-
-.product-image {
-  height: 230px;
-  padding: 20px;
+.store-card {
+  position: relative;
   display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--voltix-surface);
+  border: 1px solid var(--voltix-line);
+  border-radius: var(--voltix-radius-card);
+  box-shadow: var(--voltix-shadow-rest);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.store-card-link {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ---------- MEDIA (row 1) ---------- */
+.store-card-media {
+  display: flex;
+  flex: none;
   align-items: center;
   justify-content: center;
-  background: #ffffff;
+  aspect-ratio: 4 / 3;
+  padding: 16px;
+  overflow: hidden;
+  background: var(--voltix-media);
+  border-bottom: 1px solid var(--voltix-line);
 }
 
-.product-image img {
+.store-card-media img {
   width: 100%;
   height: 100%;
+  max-height: 100%;
   object-fit: contain;
 }
 
-.product-info {
-  padding: 18px;
+.store-card-placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: #cbd5e1;
 }
 
-.product-category {
-  color: #2563eb;
+.store-card-placeholder svg {
+  width: 34%;
+  max-width: 56px;
+  height: auto;
+}
+
+/* ---------- CONTENT (rows 2-6) ---------- */
+.store-card-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 14px 14px 0;
+}
+
+/* Row: category */
+.store-card-eyebrow {
+  min-height: 16px;
+  margin: 0;
+  color: var(--voltix-muted);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Row: title - always exactly two lines tall */
+.store-card-title {
+  min-height: 42px;
+  margin: 4px 0 0;
+  color: var(--voltix-ink);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 21px;
+  overflow-wrap: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Row: brand + rating */
+.store-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 20px;
+  margin-top: 6px;
+  color: var(--voltix-muted);
   font-size: 13px;
-  font-weight: 700;
+  line-height: 20px;
 }
 
-.product-info h3 {
-  font-size: 16px;
-  margin: 10px 0;
-  line-height: 1.4;
-  min-height: 45px;
+.store-card-brand {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.product-rating {
-  color: #475569;
-  margin-bottom: 10px;
+.store-card-rating {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  color: var(--voltix-body);
 }
 
-.product-price {
-  font-size: 21px;
+.store-card-star {
+  width: 14px;
+  height: 14px;
+  color: var(--voltix-star);
+}
+
+.store-card-rating-count {
+  color: var(--voltix-muted);
+}
+
+/* Row: price - reserved even without a strike-through price */
+.store-card-price {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-height: 26px;
+  margin-top: 10px;
+}
+
+.store-card-price-now {
+  color: var(--voltix-ink);
+  font-size: 20px;
   font-weight: 800;
+  line-height: 26px;
+  letter-spacing: -0.3px;
 }
 
-.add-cart-button {
-  width: calc(100% - 36px);
-  margin: 0 18px 18px;
-  padding: 13px;
-  background: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 8px;
+.store-card-price-was {
+  color: var(--voltix-muted);
+  font-size: 14px;
+  line-height: 26px;
+  text-decoration: line-through;
+}
+
+/* Row: stock - always rendered so the height is identical */
+.store-card-stock {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+  margin-top: 8px;
+}
+
+.store-card-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: 12px;
   font-weight: 700;
+  line-height: 22px;
+  white-space: nowrap;
 }
 
-.add-cart-button:hover {
-  background: #1d4ed8;
+.store-card-chip.is-low {
+  color: #92400e;
+  background: #fef3c7;
 }
 
-.add-cart-button.large {
-  width: auto;
-  margin: 20px 0 0;
-  padding: 15px 35px;
+.store-card-chip.is-out {
+  color: var(--voltix-muted);
+  background: #f1f5f9;
+}
+
+/* ---------- WISHLIST HEART ---------- */
+.store-card-fav {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  color: var(--voltix-body);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--voltix-line);
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.store-card-fav svg {
+  width: 20px;
+  height: 20px;
+}
+
+.store-card-fav.is-active {
+  color: var(--voltix-sale);
+  background: #ffffff;
+  border-color: #fecdd3;
+}
+
+.store-card-fav:focus-visible {
+  outline: 2px solid var(--voltix-primary);
+  outline-offset: 2px;
+}
+
+/* ---------- ACTIONS (always last, always same position) ---------- */
+.store-card-actions {
+  flex: none;
+  padding: 12px 14px 14px;
+}
+
+.store-card-add {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 10px;
+  color: #ffffff;
+  background: var(--voltix-primary);
+  border: 0;
+  border-radius: var(--voltix-radius-control);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background-color 0.2s ease;
+}
+
+.store-card-add.is-added {
+  background: #15803d;
+}
+
+.store-card-add.is-error {
+  background: #b91c1c;
+}
+
+.store-card-add:disabled {
+  color: var(--voltix-muted);
+  background: #f1f5f9;
+  cursor: not-allowed;
+}
+
+.store-card-add:focus-visible {
+  outline: 2px solid var(--voltix-primary);
+  outline-offset: 2px;
+}
+
+/* ---------- HOVER (pointer devices only) ---------- */
+@media (hover: hover) {
+  .store-card:hover {
+    transform: translateY(-4px);
+    border-color: #cbd5e1;
+    box-shadow: var(--voltix-shadow-hover);
+  }
+
+  .store-card:hover .store-card-media {
+    background: #f1f5f9;
+  }
+
+  .store-card-fav:not(:disabled):hover {
+    color: var(--voltix-sale);
+    transform: scale(1.06);
+  }
+
+  .store-card-add:not(:disabled):hover {
+    background: var(--voltix-primary-dark);
+  }
+
+  .store-card-add.is-added:hover {
+    background: #166534;
+  }
+
+  .store-card-add.is-error:hover {
+    background: #991b1b;
+  }
+}
+
+/* ---------- >= 576px: slightly roomier interior ---------- */
+@media (min-width: 576px) {
+  .store-card-media {
+    padding: 20px;
+  }
+
+  .store-card-content {
+    padding: 16px 16px 0;
+  }
+
+  .store-card-actions {
+    padding: 14px 16px 16px;
+  }
 }

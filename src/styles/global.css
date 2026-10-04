@@ -1,7 +1,50 @@
+:root {
+  --voltix-container: 1280px;
+  --voltix-gutter: 16px;
+  --voltix-header-height: 60px;
+
+  /* Store palette */
+  --voltix-primary: #2563eb;
+  --voltix-primary-dark: #1d4ed8;
+  --voltix-primary-soft: #eff6ff;
+  --voltix-ink: #0f172a;
+  --voltix-body: #475569;
+  --voltix-muted: #64748b;
+  --voltix-line: #e5e7eb;
+  --voltix-surface: #ffffff;
+  --voltix-canvas: #f7f8fa;
+  --voltix-media: #f8fafc;
+  --voltix-dark: #0b1220;
+  --voltix-sale: #e11d48;
+  --voltix-star: #f59e0b;
+
+  /* Shape + depth */
+  --voltix-radius-control: 10px;
+  --voltix-radius-card: 14px;
+  --voltix-radius-tile: 18px;
+  --voltix-shadow-rest: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --voltix-shadow-hover: 0 14px 30px rgba(15, 23, 42, 0.1);
+}
+
+@media (min-width: 992px) {
+  :root {
+    --voltix-gutter: 32px;
+    --voltix-header-height: 68px;
+  }
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+/* Shared layout container used by the navbar, home page and footer */
+.voltix-container {
+  width: 100%;
+  max-width: var(--voltix-container);
+  margin-inline: auto;
+  padding-inline: var(--voltix-gutter);
 }
 
 body {
@@ -15,7 +58,10 @@ a {
   color: inherit;
 }
 
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
   font-family: inherit;
 }
 
@@ -23,7 +69,9 @@ button {
   cursor: pointer;
 }
 
-.loading, .empty-state, .page-placeholder {
+.loading,
+.empty-state,
+.page-placeholder {
   padding: 80px 20px;
   text-align: center;
 }

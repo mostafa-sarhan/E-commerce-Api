@@ -6,7 +6,6 @@ import "../Auth.css";
 function Register() {
   const { register, loading } = useAuth();
   const navigate = useNavigate();
-  const [role, setRole] = useState("customer");
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -30,8 +29,8 @@ function Register() {
     }
 
     try {
-      await register(form, role);
-      navigate(role === "seller" ? "/dashboard" : "/", { replace: true });
+      await register(form, "customer");
+      navigate("/", { replace: true });
     } catch (error) {
       // apiRequest now includes validation errors returned by Route API,
       // so the actual reason for a 400 is visible instead of only "fail".
@@ -43,32 +42,16 @@ function Register() {
     <main className="auth-page">
       <div className="auth-card">
         <div className="auth-header">
-          <p>JOIN ELECTROSTORE</p>
+          <p>JOIN VOLTIX</p>
           <h1>Create Account</h1>
-          <span>Choose the account type you want to create.</span>
-        </div>
-
-        <div className="role-picker two-roles">
-          {[
-            ["customer", "🛍️", "Customer"],
-            ["seller", "🏪", "Seller"],
-          ].map(([value, icon, label]) => (
-            <button
-              type="button"
-              key={value}
-              className={
-                role === value ? "role-option active" : "role-option"
-              }
-              onClick={() => setRole(value)}
-            >
-              <span>{icon}</span>
-              <strong>{label}</strong>
-            </button>
-          ))}
+          <span>
+            Register to add products to your
+            cart and place an order.
+          </span>
         </div>
 
         <div className="selected-role-banner">
-          Creating a <strong>{role}</strong> account.
+          Creating a <strong>customer</strong> account.
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -127,7 +110,7 @@ function Register() {
           <button type="submit" disabled={loading}>
             {loading
               ? "Creating..."
-              : `Create ${role[0].toUpperCase() + role.slice(1)} Account`}
+              : "Create Customer Account"}
           </button>
         </form>
 

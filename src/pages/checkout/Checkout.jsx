@@ -11,7 +11,6 @@ import {
 } from "../../services/api/orderApi";
 
 import {
-  addLocalOrder,
   clearLocalCart,
 } from "../../services/localStore";
 
@@ -127,95 +126,35 @@ export default function Checkout() {
 
       let apiOrder = null;
 
-      if (!hasLocalItems) {
-        try {
-          apiOrder =
-            await createCashOrder(
-              cart._id,
-              form
-            );
-        } catch {
-          try {
-            apiOrder =
-              await createCashOrderV1(
-                cart._id,
-                form
-              );
-          } catch {}
-        }
+      try {
+        apiOrder =
+          await createCashOrder(
+            cart._id,
+            form
+          );
+      } catch {
+        apiOrder =
+          await createCashOrderV1(
+            cart._id,
+            form
+          );
       }
 
       if (
-        apiOrder?.data?._id ||
-        apiOrder?.order?._id
+        !apiOrder?.data?._id &&
+        !apiOrder?.order?._id &&
+        !apiOrder?.data?.order?._id
       ) {
-        clearLocalCart(
-          user?.email
+        throw new Error(
+          "The order could not be created. Please try again."
         );
-
-        try {
-          await loadCart();
-        } catch {}
-
-        alert(
-          "Order placed successfully through the Route API. You can track it from My Orders."
-        );
-
-        navigate("/orders");
-        return;
       }
 
-      const order = {
-        _id: `local-order-${Date.now()}`,
-        userId:
-          user?._id ||
-          user?.email,
+      clearLocalCart(user?.email);
 
-        user: {
-          _id: user?._id,
-          name: user?.name,
-          email: user?.email,
-          phone: user?.phone,
-        },
-
-        cartId: cart?._id,
-
-        createdAt:
-          new Date().toISOString(),
-
-        shippingAddress: form,
-
-        cartItems: products.map(
-          (i) => ({
-            product: i.product,
-            price: i.price,
-            count: i.count,
-            title:
-              i.product?.title,
-            imageCover:
-              i.product?.imageCover,
-          })
-        ),
-
-        totalOrderPrice: total,
-
-        isPaid: false,
-        isDelivered: false,
-
-        paymentMethod,
-
-        status: "Placed",
-      };
-
-      addLocalOrder(order);
-
-      clearLocalCart(
-        user?.email
+      await loadCart().catch(
+        () => null
       );
-
-      try {
-        await loadCart();
-      } catch {}
 
       alert(
         "Order placed successfully. You can track it from My Orders."

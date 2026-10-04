@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 
 import {
   useSearchParams,
-  Link,
   Navigate,
 } from "react-router-dom";
 
@@ -11,11 +10,9 @@ import {
   getCategories,
 } from "../../services/api/productApi";
 
-import {
-  getPublicSellerProducts,
-} from "../../services/localStore";
-
 import { useAuth } from "../../context/AuthContext";
+
+import ProductCard from "../../components/ProductCard/ProductCard";
 
 import "./Products.css";
 
@@ -53,72 +50,25 @@ function Products() {
     "";
 
   useEffect(() => {
-    if (role === "seller") {
-      return;
-    }
-
     Promise.allSettled([
       getCategories(),
       getProducts("?limit=50"),
     ]).then(([c, p]) => {
-      const remoteCategories =
+      setCategories(
         c.status === "fulfilled"
           ? c.value.data || []
-          : [];
+          : []
+      );
 
-      const remoteProducts =
+      setProducts(
         p.status === "fulfilled"
           ? p.value.data || []
-          : [];
-
-      const sellerProducts =
-        getPublicSellerProducts();
-
-      const sellerCategories =
-        sellerProducts
-          .map(
-            (product) =>
-              product.category
-          )
-          .filter(Boolean);
-
-      const categoryMap = new Map(
-        remoteCategories.map(
-          (category) => [
-            category._id,
-            category,
-          ]
-        )
+          : []
       );
-
-      sellerCategories.forEach(
-        (category) => {
-          if (
-            category._id &&
-            !categoryMap.has(
-              category._id
-            )
-          ) {
-            categoryMap.set(
-              category._id,
-              category
-            );
-          }
-        }
-      );
-
-      setCategories([
-        ...categoryMap.values(),
-      ]);
-
-      setProducts([
-        ...sellerProducts,
-        ...remoteProducts,
-      ]);
 
       setLoading(false);
     });
-  }, [role]);
+  }, []);
 
   const filtered = useMemo(() => {
     let list = products.filter(
@@ -182,15 +132,6 @@ function Products() {
     maxPrice,
     sort,
   ]);
-
-  if (role === "seller") {
-    return (
-      <Navigate
-        to="/dashboard"
-        replace
-      />
-    );
-  }
 
   if (role === "admin") {
     return (
@@ -301,60 +242,12 @@ function Products() {
         </div>
       ) : (
         <div className="products-grid">
-          {filtered.map((product) => {
-            const productId =
-              product._id ||
-              product.id;
-
-            return (
-              <Link
-                to={`/products/${productId}`}
-                className="product-card-link"
-                key={productId}
-              >
-                <div className="product-card">
-                  <img
-                    src={
-                      product.imageCover ||
-                      "https://placehold.co/300x300?text=No+Image"
-                    }
-                    alt={product.title}
-                    onError={(e) => {
-                      e.currentTarget.src =
-                        "https://placehold.co/300x300?text=No+Image";
-                    }}
-                  />
-
-                  <div className="product-card-content">
-                    <p className="product-category">
-                      {product.category
-                        ?.name ||
-                        "Product"}
-                    </p>
-
-                    <h3>
-                      {product.title}
-                    </h3>
-
-                    <p className="product-price">
-                      ${product.price}
-                    </p>
-
-                    <p className="product-stock">
-                      Stock:{" "}
-                      {product.quantity ??
-                        product.stock ??
-                        0}
-                    </p>
-
-                    <div className="view-product">
-                      View Details
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
+          {filtered.map((product) => (
+            <ProductCard
+              key={product._id || product.id}
+              product={product}
+            />
+          ))}
         </div>
       )}
     </main>

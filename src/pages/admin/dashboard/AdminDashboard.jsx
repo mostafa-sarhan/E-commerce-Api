@@ -16,12 +16,6 @@ import {
   deliverOrder,
 } from "../../../services/api/adminApi";
 
-import {
-  getOrders,
-  getLocalAccounts,
-  updateLocalOrder,
-} from "../../../services/localStore";
-
 import "./AdminDashboard.css";
 
 function AdminDashboard() {
@@ -57,41 +51,11 @@ function AdminDashboard() {
     }
 
     if (results[2].status === "fulfilled") {
-      setOrders(
-        [
-          ...new Map(
-            [
-              ...getOrders(),
-              ...(results[2].value.data || []),
-            ].map((o) => [o._id, o])
-          ).values(),
-        ]
-      );
-    } else {
-      setOrders(getOrders());
+      setOrders(results[2].value.data || []);
     }
 
     if (results[3].status === "fulfilled") {
-      setUsers(
-        [
-          ...new Map(
-            [
-              ...getLocalAccounts().map((u) => ({
-                ...u,
-                local: true,
-              })),
-              ...(results[3].value.data || []),
-            ].map((u) => [u._id || u.email, u])
-          ).values(),
-        ]
-      );
-    } else {
-      setUsers(
-        getLocalAccounts().map((u) => ({
-          ...u,
-          local: true,
-        }))
-      );
+      setUsers(results[3].value.data || []);
     }
 
     if (results[4].status === "fulfilled") {
@@ -151,25 +115,9 @@ function AdminDashboard() {
   async function changeOrder(id, action) {
     try {
       if (action === "pay") {
-        try {
-          await payOrder(id);
-        } catch {
-          updateLocalOrder(id, {
-            isPaid: true,
-            status: "Processing",
-            paidAt: new Date().toISOString(),
-          });
-        }
+        await payOrder(id);
       } else {
-        try {
-          await deliverOrder(id);
-        } catch {
-          updateLocalOrder(id, {
-            isDelivered: true,
-            status: "Delivered",
-            deliveredAt: new Date().toISOString(),
-          });
-        }
+        await deliverOrder(id);
       }
 
       await loadData();
@@ -264,42 +212,7 @@ function AdminDashboard() {
 
         {!loading &&
           activePage === "users" && (
-            <UsersView
-              users={users}
-              onRestrict={(
-                email,
-                currentlyRestricted
-              ) => {
-                const next =
-                  getLocalAccounts().map(
-                    (account) =>
-                      account.email === email
-                        ? {
-                            ...account,
-                            active:
-                              currentlyRestricted,
-                          }
-                        : account
-                  );
-
-                localStorage.setItem(
-                  "electrostore_accounts",
-                  JSON.stringify(next)
-                );
-
-                setUsers((current) =>
-                  current.map((u) =>
-                    u.email === email
-                      ? {
-                          ...u,
-                          active:
-                            currentlyRestricted,
-                        }
-                      : u
-                  )
-                );
-              }}
-            />
+            <UsersView users={users} />
           )}
 
         {!loading &&
@@ -520,10 +433,7 @@ function Stat({
   );
 }
 
-function UsersView({
-  users,
-  onRestrict,
-}) {
+function UsersView({ users }) {
   const [q, setQ] = useState("");
 
   const list = users.filter((u) =>
@@ -556,7 +466,6 @@ function UsersView({
               <th>Phone</th>
               <th>Role</th>
               <th>Status</th>
-              <th>Action</th>
             </tr>
           </thead>
 
@@ -566,33 +475,11 @@ function UsersView({
                 <td>{u.name || "—"}</td>
                 <td>{u.email}</td>
                 <td>{u.phone || "—"}</td>
-                <td>{u.role || "user"}</td>
+                <td>{u.role || "customer"}</td>
                 <td>
                   {u.active !== false
                     ? "Active"
                     : "Restricted"}
-                </td>
-
-                <td>
-                  {u.local ? (
-                    <button
-                      className="mini-btn"
-                      onClick={() =>
-                        onRestrict(
-                          u.email,
-                          u.active === false
-                        )
-                      }
-                    >
-                      {u.active === false
-                        ? "Allow"
-                        : "Restrict"}
-                    </button>
-                  ) : (
-                    <span className="muted">
-                      API managed
-                    </span>
-                  )}
                 </td>
               </tr>
             ))}

@@ -1,152 +1,331 @@
-.navbar {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(15, 23, 42, 0.07);
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+/* =========================================================
+   VOLTIX SITE HEADER
+   Mobile first. Single breakpoint: 992px.
+   Below 992px  -> hamburger + dropdown panel
+   992px and up -> single row, links left / actions right
+   ========================================================= */
+
+.site-header {
   position: sticky;
   top: 0;
   z-index: 100;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
 }
 
-.nav-container {
-  padding: 16px;
-  display: flex;
-}
-
-/* Brand Logo */
-
-.logo {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  height: 44px;
-  flex-shrink: 0;
-}
-
-.logo-image {
-  width: 220px;
-  object-fit: contain;
-  display: block;
-  margin-left: 100px;
-}
-
-/* Navbar Links */
-
-.nav-container nav {
+.site-header-inner {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-left: 45px;
-  margin-right: auto;
-  font-weight: 600;
+  min-height: var(--voltix-header-height);
 }
 
-.nav-container nav a {
-  position: relative;
-  padding: 9px 16px;
-  border-radius: 8px;
-  color: #334155;
-  white-space: nowrap;
-  text-decoration: none;
-  transition:
-    color 0.2s ease,
-    background 0.2s ease;
-}
-
-.nav-container nav a:hover {
-  color: #2563eb;
-  background: rgba(37, 99, 235, 0.06);
-}
-
-/* Navbar Actions */
-
-.nav-actions {
+/* =========================================================
+   LOGO
+   ========================================================= */
+.site-logo {
   display: flex;
   align-items: center;
-  gap: 28px;
-  margin-left: 55px;
   flex-shrink: 0;
 }
 
-.cart-button,
-.login-button,
-.profile-button,
-.logout-button {
-  display: flex;
+.site-logo-image {
+  display: block;
+  width: auto;
+  height: 26px;
+  max-width: none;
+}
+
+/* =========================================================
+   HAMBURGER
+   ========================================================= */
+.site-menu-toggle {
+  display: inline-flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  padding: 10px 20px;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  font-weight: 700;
-  font-size: 14.5px;
-  white-space: nowrap;
+  gap: 4px;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  margin-left: auto;
+  padding: 0;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  color: #334155;
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease,
     border-color 0.2s ease,
     color 0.2s ease;
 }
 
-.cart-button {
-  background: #eef2ff;
-  color: #1d4ed8;
+.site-menu-bar {
+  display: block;
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
 }
 
-.cart-button:hover {
-  background: #e0e7ff;
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.16);
+.site-menu-toggle[aria-expanded="true"] .site-menu-bar:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
 }
 
-.cart-button span {
-  min-width: 20px;
-  height: 20px;
+.site-menu-toggle[aria-expanded="true"] .site-menu-bar:nth-child(2) {
+  opacity: 0;
+}
+
+.site-menu-toggle[aria-expanded="true"] .site-menu-bar:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+.site-menu-toggle:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   NAVIGATION PANEL (mobile / tablet)
+   Anchored to the RIGHT edge so it hangs off the hamburger.
+   ========================================================= */
+.site-nav {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: var(--voltix-gutter);
+  z-index: 20;
+  display: none;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  width: min(320px, calc(100% - var(--voltix-gutter) * 2));
+  max-height: calc(100vh - var(--voltix-header-height) - 24px);
+  padding: 8px;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+}
+
+.site-nav.is-open {
+  display: flex;
+}
+
+.site-nav-link {
   display: flex;
   align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  color: #334155;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.site-nav-link[aria-current="page"] {
+  color: #2563eb;
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.site-nav-link:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.site-nav-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Count badge - shared by Cart and Wishlist so both read
+   identically. margin-left:auto pins it to the trailing edge
+   of the row, which keeps the two badges from ever colliding
+   however long the labels get. */
+.site-nav-count {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  margin-left: 2px;
+  flex-shrink: 0;
+  min-width: 20px;
+  height: 20px;
+  margin-left: auto;
   padding: 0 6px;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: white;
   border-radius: 999px;
-  font-size: 12px;
-  font-weight: 800;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
-.login-button {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: white;
-  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.3);
+/* =========================================================
+   LOGIN / REGISTER
+   ========================================================= */
+.site-nav-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
 }
 
-.login-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.38);
+.site-action-login,
+.site-action-register {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
-.profile-button {
-  background: #f8fafc;
-  border-color: #e2e8f0;
-  color: #0f172a;
+.site-action-login:focus-visible,
+.site-action-register:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
 }
 
-.profile-button:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-  transform: translateY(-1px);
+.site-action-login {
+  color: #1d4ed8;
+  background: #eff6ff;
+  border-color: #bfdbfe;
 }
 
-.logout-button {
-  background: transparent;
-  border-color: #fecaca;
-  color: #b91c1c;
+.site-action-register {
+  color: #ffffff;
+  background: #2563eb;
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.22);
 }
 
-.logout-button:hover {
-  background: #fef2f2;
-  border-color: #fca5a5;
-  transform: translateY(-1px);
+/* =========================================================
+   HOVER (pointer devices only)
+   ========================================================= */
+@media (hover: hover) {
+  .site-menu-toggle:hover {
+    color: #2563eb;
+    border-color: #bfdbfe;
+  }
+
+  .site-nav-link:hover {
+    color: #2563eb;
+    background: rgba(37, 99, 235, 0.06);
+  }
+
+  .site-action-login:hover {
+    background: #dbeafe;
+  }
+
+  .site-action-register:hover {
+    background: #1d4ed8;
+  }
+}
+
+/* =========================================================
+   DESKTOP: 992px AND UP
+   ========================================================= */
+@media (min-width: 992px) {
+  .site-logo-image {
+    height: 30px;
+  }
+
+  .site-menu-toggle {
+    display: none;
+    margin-left: 0;
+  }
+
+  .site-nav {
+    position: static;
+    top: auto;
+    right: auto;
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    width: auto;
+    max-height: none;
+    padding: 0;
+    overflow: visible;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .site-nav-link {
+    width: auto;
+    padding: 9px 12px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  .site-nav-link-cart,
+  .site-nav-link-wishlist {
+    padding-right: 8px;
+  }
+
+  /* Drop the two text labels just above the breakpoint so the
+     992px row never has to squeeze. Below this width each of
+     Cart / Wishlist is an icon + count badge only. */
+  @media (max-width: 1099px) {
+    .site-nav-link-cart > span:not(.site-nav-count),
+    .site-nav-link-wishlist > span:not(.site-nav-count) {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .site-nav-link-cart,
+    .site-nav-link-wishlist {
+      gap: 6px;
+      padding-inline: 8px;
+    }
+  }
+
+  .site-nav-actions {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    margin-top: 0;
+    margin-left: auto;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .site-action-login,
+  .site-action-register {
+    min-height: 40px;
+    padding: 0 18px;
+    border-radius: 999px;
+    font-size: 14px;
+  }
 }

@@ -11,9 +11,10 @@
 
 /* Main footer content */
 .footer-content {
-  width: min(1200px, calc(100% - 40px));
-  margin: 0 auto;
-  padding: 60px 0 50px;
+  width: 100%;
+  max-width: var(--voltix-container);
+  margin-inline: auto;
+  padding: 60px var(--voltix-gutter) 50px;
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr;
   gap: 70px;
@@ -95,9 +96,10 @@
    Bottom Bar
    ================================ */
 .footer-bottom {
-  width: min(1200px, calc(100% - 40px));
-  margin: 0 auto;
-  padding: 22px 0;
+  width: 100%;
+  max-width: var(--voltix-container);
+  margin-inline: auto;
+  padding: 22px var(--voltix-gutter);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   color: #64748b;
   font-size: 13px;
@@ -111,7 +113,7 @@
   .footer-content {
     grid-template-columns: 1fr 1fr;
     gap: 45px;
-    padding: 50px 0 40px;
+    padding-block: 50px 40px;
   }
   .footer-brand {
     grid-column: 1 / -1;
@@ -127,10 +129,9 @@
     margin-top: 45px;
   }
   .footer-content {
-    width: min(100% - 32px, 420px);
     grid-template-columns: 1fr;
     gap: 35px;
-    padding: 42px 0 35px;
+    padding-block: 42px 35px;
   }
   .footer-brand {
     grid-column: auto;
@@ -142,8 +143,7 @@
     margin-bottom: 16px;
   }
   .footer-bottom {
-    width: min(100% - 32px, 420px);
-    padding: 18px 0;
+    padding-block: 18px;
     font-size: 12px;
   }
 }

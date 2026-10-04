@@ -2,11 +2,6 @@ import { useEffect, useState } from "react";
 
 import { getUserOrders } from "../../services/api/orderApi";
 
-import {
-  getLocalUserOrders,
-  updateLocalOrder,
-} from "../../services/localStore";
-
 import { useAuth } from "../../context/AuthContext";
 
 import "./Orders.css";
@@ -20,48 +15,38 @@ export default function Orders() {
   const [loading, setLoading] =
     useState(true);
 
+  const [error, setError] = useState("");
+
   async function load() {
-    if (!user) {
+    if (!user?._id) {
+      setOrders([]);
       setLoading(false);
       return;
     }
 
-    let remote = [];
+    setError("");
 
     try {
-      if (
-        user._id &&
-        !String(user._id).startsWith(
-          "local-"
+      const d = await getUserOrders(user._id);
+
+      const remote = d.data || [];
+
+      setOrders(
+        [...remote].sort(
+          (a, b) =>
+            new Date(b.createdAt) -
+            new Date(a.createdAt)
         )
-      ) {
-        const d =
-          await getUserOrders(user._id);
-
-        remote = d.data || [];
-      }
-    } catch {}
-
-    const local =
-      getLocalUserOrders(
-        user._id || user.email
       );
-
-    const map = new Map(
-      [...local, ...remote].map(
-        (o) => [o._id, o]
-      )
-    );
-
-    setOrders(
-      [...map.values()].sort(
-        (a, b) =>
-          new Date(b.createdAt) -
-          new Date(a.createdAt)
-      )
-    );
-
-    setLoading(false);
+    } catch (err) {
+      setOrders([]);
+      setError(
+        err.message ||
+          "Could not load your orders."
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -73,27 +58,11 @@ export default function Orders() {
       return;
     }
 
-    updateLocalOrder(
-      order._id,
-      {
-        isDelivered: true,
-        status: "Delivered",
-        isPaid:
-          order.paymentMethod === "cash"
-            ? true
-            : order.isPaid,
-        deliveredAt:
-          new Date().toISOString(),
-        customerConfirmedAt:
-          new Date().toISOString(),
-      }
+    alert(
+      "Cash on Delivery orders are marked as received once the courier hands the parcel over."
     );
 
     await load();
-
-    alert(
-      "Delivery confirmed. The order is now marked as received and paid for Cash on Delivery."
-    );
   }
 
   if (!user) {
@@ -122,6 +91,14 @@ export default function Orders() {
       {loading ? (
         <div className="loading">
           Loading your orders...
+        </div>
+      ) : error ? (
+        <div className="empty-state">
+          <h2>
+            Could not load orders
+          </h2>
+
+          <p>{error}</p>
         </div>
       ) : !orders.length ? (
         <div className="empty-state">

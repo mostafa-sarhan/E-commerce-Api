@@ -16,31 +16,24 @@ import Wishlist from "../pages/wishlist/Wishlist";
 import Orders from "../pages/orders/Orders";
 import Profile from "../pages/profile/Profile";
 import Dashboard from "../pages/dashboard/Dashboard";
-import SellerProducts from "../pages/seller/products/SellerProducts";
-import SellerInventory from "../pages/seller/inventory/SellerInventory";
-import SellerOrders from "../pages/seller/orders/SellerOrders";
-import SellerCustomers from "../pages/seller/customers/SellerCustomers";
-import SellerReviews from "../pages/seller/reviews/SellerReviews";
 import AdminDashboard from "../pages/admin/dashboard/AdminDashboard";
 import AdminProducts from "../pages/admin/products/AdminProducts";
 
 function PublicOnly({ children }) {
   const { user, role } = useAuth();
   if (user && role === "admin") return <Navigate to="/admin" replace />;
-  if (user && role === "seller") return <Navigate to="/dashboard" replace />;
   return children;
 }
 
 function StorePage({ children }) {
   const { user, role } = useAuth();
   if (role === "admin") return <Navigate to="/admin" replace />;
-  if (role === "seller") return <Navigate to="/dashboard" replace />;
   return children;
 }
 
 function AppShell() {
   const { role } = useAuth();
-  const managementMode = role === "seller" || role === "admin";
+  const managementMode = role === "admin";
 
   return (
     <>
@@ -54,27 +47,16 @@ function AppShell() {
         <Route path="/register" element={<PublicOnly><Register /></PublicOnly>} />
         <Route path="/forgot-password" element={<PublicOnly><ForgotPassword /></PublicOnly>} />
 
+        {/* Cart can be filled as a guest. Placing the order
+            requires an account, so checkout is behind the guard. */}
+        <Route path="/cart" element={<Cart />} />
+
         <Route element={<ProtectedRoute roles={["customer"]} />}>
-          <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/orders" element={<Orders />} />
-        </Route>
-
-        <Route element={<ProtectedRoute roles={["customer", "seller", "admin"]} />}>
-          <Route path="/profile" element={<Profile />} />
-        </Route>
-
-        <Route element={<ProtectedRoute roles={["customer", "seller"]} />}>
           <Route path="/dashboard" element={<Dashboard />} />
-        </Route>
-
-        <Route element={<ProtectedRoute roles={["seller"]} />}>
-          <Route path="/seller/products" element={<SellerProducts />} />
-          <Route path="/seller/inventory" element={<SellerInventory />} />
-          <Route path="/seller/orders" element={<SellerOrders />} />
-          <Route path="/seller/customers" element={<SellerCustomers />} />
-          <Route path="/seller/reviews" element={<SellerReviews />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
 
         <Route element={<ProtectedRoute roles={["admin"]} />}>
@@ -82,7 +64,7 @@ function AppShell() {
           <Route path="/admin/products" element={<AdminProducts />} />
         </Route>
 
-        <Route path="*" element={<Navigate to={managementMode ? (role === "admin" ? "/admin" : "/dashboard") : "/"} replace />} />
+        <Route path="*" element={<Navigate to={managementMode ? "/admin" : "/"} replace />} />
       </Routes>
       {!managementMode && <Footer />}
     </>

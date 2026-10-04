@@ -1,7 +1,11 @@
 import { useState } from "react";
 
-import { Link } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+} from "react-router-dom";
 
+import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
 
 import { applyCoupon } from "../../services/api/cartApi";
@@ -15,6 +19,10 @@ function Cart() {
     changeQuantity,
     removeProduct,
   } = useCart();
+
+  const { user } = useAuth();
+
+  const navigate = useNavigate();
 
   const [coupon, setCoupon] = useState("");
   const [couponLoading, setCouponLoading] =
@@ -42,6 +50,22 @@ function Cart() {
   }
 
   const products = cart?.products || [];
+
+  const itemId = (item) =>
+    item?.product?._id || item?.product?.id;
+
+  /* Signing in is only needed to place the order, never to build
+     a cart, so the checkout hand-off remembers where to return. */
+  function handleCompleteCart() {
+    if (user) {
+      navigate("/checkout");
+      return;
+    }
+
+    navigate("/login", {
+      state: { from: "/checkout" },
+    });
+  }
 
   const subtotal = products.reduce(
     (total, item) =>
@@ -130,7 +154,7 @@ function Cart() {
             {products.map((item) => (
               <div
                 className="cart-item"
-                key={item.product._id}
+                key={itemId(item)}
               >
                 <img
                   src={
@@ -154,7 +178,7 @@ function Cart() {
                     <button
                       onClick={() =>
                         changeQuantity(
-                          item.product._id,
+                          itemId(item),
                           Math.max(
                             1,
                             item.count - 1
@@ -172,7 +196,7 @@ function Cart() {
                     <button
                       onClick={() =>
                         changeQuantity(
-                          item.product._id,
+                          itemId(item),
                           item.count + 1
                         )
                       }
@@ -184,9 +208,7 @@ function Cart() {
                   <button
                     className="remove-button"
                     onClick={() =>
-                      removeProduct(
-                        item.product._id
-                      )
+                      removeProduct(itemId(item))
                     }
                   >
                     Remove
@@ -199,26 +221,28 @@ function Cart() {
           <aside className="cart-summary">
             <h2>Order Summary</h2>
 
-            <div className="coupon-box">
-              <input
-                placeholder="Promo code"
-                value={coupon}
-                onChange={(e) =>
-                  setCoupon(
-                    e.target.value
-                  )
-                }
-              />
+            {/* Promo codes run through the store API, so they only
+                appear once there is an account to apply them to. */}
+            {user && (
+              <div className="coupon-box">
+                <input
+                  placeholder="Promo code"
+                  value={coupon}
+                  onChange={(e) =>
+                    setCoupon(e.target.value)
+                  }
+                />
 
-              <button
-                onClick={handleCoupon}
-                disabled={couponLoading}
-              >
-                {couponLoading
-                  ? "Applying..."
-                  : "Apply"}
-              </button>
-            </div>
+                <button
+                  onClick={handleCoupon}
+                  disabled={couponLoading}
+                >
+                  {couponLoading
+                    ? "Applying..."
+                    : "Apply"}
+                </button>
+              </div>
+            )}
 
             <div>
               <span>Subtotal</span>
@@ -252,12 +276,40 @@ function Cart() {
               </strong>
             </div>
 
-            <Link
-              to="/checkout"
+            <button
+              type="button"
               className="checkout-button"
+              onClick={handleCompleteCart}
             >
-              Proceed to Checkout
-            </Link>
+              Complete the cart
+            </button>
+
+            {!user && (
+              <div className="cart-signin">
+                <p>
+                  Sign in or create an account to
+                  complete your order. Everything in
+                  your cart is saved.
+                </p>
+
+                <div className="cart-signin-actions">
+                  <button
+                    type="button"
+                    className="cart-signin-login"
+                    onClick={handleCompleteCart}
+                  >
+                    Login
+                  </button>
+
+                  <Link
+                    to="/register"
+                    className="cart-signin-register"
+                  >
+                    Register
+                  </Link>
+                </div>
+              </div>
+            )}
           </aside>
         </div>
       )}

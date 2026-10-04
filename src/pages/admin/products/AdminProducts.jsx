@@ -7,11 +7,6 @@ import {
 
 import { apiRequest } from "../../../services/api/api";
 
-import {
-  getAdminProducts,
-  saveAdminProducts,
-} from "../../../services/localStore";
-
 import "./AdminProducts.css";
 
 function AdminProducts() {
@@ -40,14 +35,9 @@ function AdminProducts() {
       getCategories(),
     ]);
 
-    const remote =
-      p.status === "fulfilled"
-        ? p.value.data || []
-        : [];
-
-    const local = getAdminProducts();
-
-    setProducts([...local, ...remote]);
+    setProducts(
+      p.status === "fulfilled" ? p.value.data || [] : []
+    );
 
     if (c.status === "fulfilled") {
       setCategories(c.value.data || []);
@@ -121,41 +111,10 @@ function AdminProducts() {
 
       await load();
     } catch (error) {
-      const local = getAdminProducts();
-
-      const item = {
-        _id: editing._id,
-        id: editing._id,
-        ...payload,
-        category:
-          categories.find(
-            (c) => c._id === form.category
-          ) || {
-            _id: form.category,
-            name: "Electronics",
-          },
-        imageCover:
-          editing.imageCover ||
-          "https://placehold.co/100x100?text=Product",
-        local: true,
-      };
-
-      const next = local.map((x) =>
-        x._id === editing._id ||
-        x.id === editing._id
-          ? item
-          : x
-      );
-
-      saveAdminProducts(next);
-
       alert(
-        "The public Route API rejected this admin update. The demo kept the edit in the local admin catalog."
+        error.message ||
+          "The product could not be updated."
       );
-
-      setEditing(null);
-
-      await load();
     }
   }
 
@@ -173,25 +132,10 @@ function AdminProducts() {
       await load();
 
       alert("Product deleted.");
-    } catch {
-      const local = getAdminProducts();
-
-      saveAdminProducts(
-        local.filter(
-          (x) =>
-            x.id !== p._id &&
-            x._id !== p._id
-        )
-      );
-
-      setProducts(
-        products.filter(
-          (x) => x._id !== p._id
-        )
-      );
-
+    } catch (error) {
       alert(
-        "Server deletion was not available for this token. The local admin copy was removed."
+        error.message ||
+          "The product could not be deleted."
       );
     }
   }

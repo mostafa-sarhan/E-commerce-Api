@@ -1,12 +1,10 @@
 export const ROLES = {
   CUSTOMER: "customer",
-  SELLER: "seller",
   ADMIN: "admin",
 };
 
 export const ROLE_LABELS = {
   customer: "Customer",
-  seller: "Seller",
   admin: "Admin",
 };
 
@@ -29,10 +27,14 @@ export function saveStoredRole(email, role) {
   }
 }
 
+/**
+ * The store now has two account types: customer and admin.
+ * Anything that is not an admin account - including a stale
+ * "seller" value left in localStorage by an older build - is
+ * treated as a customer, so no dead role can linger.
+ */
 export function getRole(user) {
-  if (user?.role === "admin" || user?.role === "seller" || user?.role === "customer") {
-    return user.role;
-  }
-  if (user?.role === "user") return ROLES.CUSTOMER;
-  return getStoredRole(user?.email) || ROLES.CUSTOMER;
+  if (user?.role === "admin") return ROLES.ADMIN;
+
+  return ROLES.CUSTOMER;
 }

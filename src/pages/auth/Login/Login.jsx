@@ -11,7 +11,11 @@ function Login() {
 
   const params = new URLSearchParams(location.search);
 
-  const [role, setRole] = useState(params.get("role") || "customer");
+  const [role, setRole] = useState(
+    params.get("role") === "admin"
+      ? "admin"
+      : "customer"
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -51,14 +55,14 @@ function Login() {
           <h1>Login</h1>
 
           <span>
-            Choose your account type before signing in.
+            Sign in to your account to
+            complete your order.
           </span>
         </div>
 
         <div className="role-picker">
           {[
             ["customer", "🛍️", "Customer"],
-            ["seller", "🏪", "Seller"],
             ["admin", "🛡️", "Admin"],
           ].map(([value, icon, label]) => (
             <button

@@ -1,16 +1,10 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { updateMyProfile, changeMyPassword, getMyAddresses } from "../../services/api/userApi";
-import {
-  getLocalAccounts,
-  saveLocalAccounts,
-  findLocalAccount,
-} from "../../services/localStore";
 import "./Profile.css";
 
 function Profile() {
   const { user, role, updateUser } = useAuth();
-  const isLocalRole = role === "seller" || role === "admin";
 
   const [form, setForm] = useState({
     name: user?.name || "",
@@ -35,22 +29,6 @@ function Profile() {
   async function saveProfile(e) {
     e.preventDefault();
 
-    if (isLocalRole) {
-      const account = findLocalAccount(user?.email);
-      if (!account) return alert("Local account was not found.");
-
-      const updated = getLocalAccounts().map((item) =>
-        item.email === account.email
-          ? { ...item, name: form.name, phone: form.phone }
-          : item
-      );
-
-      saveLocalAccounts(updated);
-      updateUser({ name: form.name, phone: form.phone });
-      alert("Profile updated successfully.");
-      return;
-    }
-
     try {
       setSaving(true);
       const data = await updateMyProfile(form);
@@ -68,26 +46,6 @@ function Profile() {
 
     if (passwords.password !== passwords.rePassword) {
       return alert("New passwords do not match.");
-    }
-
-    if (isLocalRole) {
-      const account = findLocalAccount(user?.email);
-      if (!account) return alert("Local account was not found.");
-      if (account.password !== passwords.currentPassword) {
-        return alert("Current password is incorrect.");
-      }
-
-      saveLocalAccounts(
-        getLocalAccounts().map((item) =>
-          item.email === account.email
-            ? { ...item, password: passwords.password }
-            : item
-        )
-      );
-
-      setPasswords({ currentPassword: "", password: "", rePassword: "" });
-      alert("Password changed successfully.");
-      return;
     }
 
     try {

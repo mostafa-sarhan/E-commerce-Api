@@ -10,15 +10,6 @@ import {
   resetPassword,
 } from "../../services/api/authApi";
 
-import {
-  clearResetCode,
-  getResetCode,
-  saveResetCode,
-  findLocalAccount,
-  getLocalAccounts,
-  saveLocalAccounts,
-} from "../../services/localStore";
-
 import "./Auth.css";
 
 export default function ForgotPassword() {
@@ -36,44 +27,9 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
-      let sent = false;
+      await forgotPassword(email);
 
-      try {
-        await forgotPassword(email);
-        sent = true;
-      } catch {}
-
-      const local = findLocalAccount(
-        email,
-        "seller"
-      );
-
-      if (local || sent) {
-        if (local) {
-          const c = String(
-            Math.floor(
-              100000 +
-                Math.random() * 900000
-            )
-          );
-
-          saveResetCode(email, c);
-
-          alert(
-            `Your verification code is: ${c}`
-          );
-        } else {
-          alert(
-            "Verification code sent to your email. Check your inbox."
-          );
-        }
-
-        setStep(2);
-      } else {
-        throw new Error(
-          "No account was found with this email."
-        );
-      }
+      setStep(2);
     } catch (err) {
       alert(err.message);
     } finally {
@@ -86,20 +42,7 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
-      const local = getResetCode(email);
-
-      if (local) {
-        if (
-          local.expiresAt < Date.now() ||
-          local.code !== code
-        ) {
-          throw new Error(
-            "Invalid or expired verification code."
-          );
-        }
-      } else {
-        await verifyResetCode(code);
-      }
+      await verifyResetCode(code);
 
       setStep(3);
     } catch (err) {
@@ -121,31 +64,10 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
-      const local = findLocalAccount(
+      await resetPassword({
         email,
-        "seller"
-      );
-
-      if (local) {
-        saveLocalAccounts(
-          getLocalAccounts().map((a) =>
-            a.email.toLowerCase() ===
-            email.toLowerCase()
-              ? {
-                  ...a,
-                  password,
-                }
-              : a
-          )
-        );
-
-        clearResetCode(email);
-      } else {
-        await resetPassword({
-          email,
-          newPassword: password,
-        });
-      }
+        newPassword: password,
+      });
 
       alert(
         "Password changed successfully. Please login."
