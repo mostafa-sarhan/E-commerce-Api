@@ -36,9 +36,11 @@ function CustomerDashboard() {
         ]);
 
       const orderData =
-        orders.status === "fulfilled"
-          ? orders.value?.data || []
-          : [];
+  orders.status === "fulfilled"
+    ? Array.isArray(orders.value)
+      ? orders.value
+      : orders.value?.data || []
+    : [];
 
       const wishlistData =
         wishlist.status === "fulfilled"

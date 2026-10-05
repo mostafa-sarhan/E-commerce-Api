@@ -43,7 +43,7 @@ function Navbar() {
     useState(false);
 
   const { cartItemsCount } = useCart();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const closeMenu = () => {
     setIsMenuOpen(false);
@@ -162,17 +162,30 @@ function Navbar() {
           </NavLink>
 
           <div className="site-nav-actions">
-          {user ? (
-            <Link
-              to="/profile"
-              className="site-action-profile"
-              onClick={closeMenu}
-              title="My Profile"
-              aria-label="My Profile"
-            >
-              👤
-            </Link>
-          ) : (
+  {user ? (
+    <>
+      <Link
+        to="/profile"
+        className="site-action-profile"
+        onClick={closeMenu}
+        title="My Profile"
+        aria-label="My Profile"
+      >
+        👤
+      </Link>
+
+      <button
+        type="button"
+        className="site-action-logout"
+        onClick={() => {
+          logout();
+          closeMenu();
+        }}
+      >
+        Logout
+      </button>
+    </>
+  ) : (
             <>
               <Link
                 to="/login"

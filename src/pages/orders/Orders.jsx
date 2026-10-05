@@ -7,6 +7,9 @@ import { useAuth } from "../../context/AuthContext";
 import "./Orders.css";
 
 export default function Orders() {
+
+console.log("ORDERS PAGE IS OPEN");
+
   const { user } = useAuth();
 
   const [orders, setOrders] =
@@ -18,6 +21,11 @@ export default function Orders() {
   const [error, setError] = useState("");
 
   async function load() {
+
+    console.log("LOAD FUNCTION STARTED");
+    console.log("CURRENT USER:", user);
+    console.log("CURRENT USER ID:", user?._id);
+
     if (!user?._id) {
       setOrders([]);
       setLoading(false);
@@ -29,7 +37,10 @@ export default function Orders() {
     try {
       const d = await getUserOrders(user._id);
 
-      const remote = d.data || [];
+          console.log("USER ID:", user._id);
+          console.log("ORDERS API RESPONSE:", d);
+
+      const remote = Array.isArray(d) ? d : d.data || [];
 
       setOrders(
         [...remote].sort(

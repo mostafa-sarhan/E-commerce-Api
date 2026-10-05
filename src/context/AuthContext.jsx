@@ -13,11 +13,27 @@ function readUser() {
   }
 }
 
-function normalizeUser(apiUser, email, role = "customer") {
+function normalizeUser(apiUser, email, role = "customer", token = "") {
+  let tokenUser = {};
+
+  try {
+    if (token) {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      tokenUser = payload;
+    }
+  } catch {
+    tokenUser = {};
+  }
+
   return {
     ...apiUser,
+    _id: apiUser?._id || apiUser?.id || tokenUser?.id,
     email: apiUser?.email || email,
-    role: apiUser?.role === "admin" ? "admin" : role,
+    name: apiUser?.name || tokenUser?.name || "",
+    role:
+      apiUser?.role === "admin" || tokenUser?.role === "admin"
+        ? "admin"
+        : role,
   };
 }
 
@@ -37,9 +53,15 @@ export function AuthProvider({ children }) {
         password,
       });
 
-      const apiUser = data?.user || data?.data?.user || {};
-      const finalUser = normalizeUser(apiUser, normalizedEmail, "customer");
+      console.log("LOGIN API RESPONSE:", data);
 
+      const apiUser = data?.user || data?.data?.user || {};
+        const finalUser = normalizeUser(
+          apiUser,
+          normalizedEmail,
+          "customer",
+          data.token
+        );
       if (finalUser.role !== "customer") {
         throw new Error("This account is not a customer account.");
       }
@@ -90,8 +112,12 @@ export function AuthProvider({ children }) {
       // redundant second signin request.
       if (data?.token) {
         const apiUser = data?.user || data?.data?.user || {};
-        const finalUser = normalizeUser(apiUser, normalized.email, "customer");
-
+          const finalUser = normalizeUser(
+            apiUser,
+            normalized.email,
+            "customer",
+            data.token
+          );
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(finalUser));
         saveStoredRole(normalized.email, "customer");
