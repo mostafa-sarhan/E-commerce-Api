@@ -81,3 +81,20 @@
   margin:12px auto;
   display:block
 }
+
+.confirm-received-btn {
+  padding: 10px 20px;
+  border: 1px solid #19a207;
+  border-radius: 999px;
+  background: #19a207;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.confirm-received-btn:hover {
+  background: #158a06;
+  border-color: #158a06;
+}

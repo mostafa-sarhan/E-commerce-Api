@@ -186,7 +186,8 @@
 }
 
 .site-action-login,
-.site-action-register {
+.site-action-register,
+.site-action-logout {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -213,6 +214,13 @@
   color: #1d4ed8;
   background: #eff6ff;
   border-color: #bfdbfe;
+}
+
+.site-action-logout {
+  color: #dc2626;
+  background: #fef2f2;
+  border-color: #fecaca;
+  border-radius: 999px;
 }
 
 .site-action-register {

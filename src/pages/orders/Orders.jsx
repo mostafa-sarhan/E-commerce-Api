@@ -268,6 +268,7 @@ console.log("ORDERS PAGE IS OPEN");
                     </p>
 
                     <button
+                    className="confirm-received-btn"
                       onClick={() =>
                         confirmReceived(
                           order
