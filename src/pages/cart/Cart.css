@@ -1,121 +1,277 @@
+/* =========================================================
+   CART PAGE - RESPONSIVE
+
+   Mobile first. Three explicit steps, matching the rest of
+   the storefront (ProductCard.css, Products.css):
+
+     < 640px   -> single column, cart item stacked
+     640-991px -> single column, cart item back in a row
+     >= 992px  -> two columns, items + sticky summary
+
+   The shell (.cart-page, .page-header) lives in
+   pages/products/Products.css; only the cart-scoped
+   overrides below are owned by this file.
+
+   Overflow rules that are load-bearing, not cosmetic:
+     - every grid track is minmax(0, ...) and every flex
+       child that holds text is min-width: 0, so a long
+       unbroken title can never widen a track;
+     - the quantity group is flex: none, so it is never
+       squeezed by a long title;
+     - titles use overflow-wrap: anywhere, so they wrap
+       inside the card instead of pushing it out.
+   ========================================================= */
+
+.cart-page {
+  min-width: 0;
+}
+
+.page-header h1 {
+  overflow-wrap: break-word;
+}
+
+/* ---------------------------------------------------------
+   LAYOUT
+   --------------------------------------------------------- */
 .cart-layout {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 30px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
 }
 
 .cart-items {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 14px;
+  min-width: 0;
 }
 
+/* ---------------------------------------------------------
+   CART ITEM
+   --------------------------------------------------------- */
 .cart-item {
-  background: white;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding: 14px;
+  background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 14px;
-  padding: 20px;
-  display: flex;
-  gap: 20px;
 }
 
-.cart-item img {
-  width: 130px;
-  height: 130px;
+.cart-item-image {
+  flex: none;
+  width: 100%;
+  height: 172px;
   object-fit: contain;
+  background: #f8fafc;
+  border-radius: 10px;
 }
 
 .cart-item-info {
   flex: 1;
+  min-width: 0;
 }
 
-.cart-item-info h3 {
-  margin-bottom: 12px;
+.cart-item-eyebrow {
+  min-height: 16px;
+  margin: 0;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
-.cart-item-info p {
+.cart-item-title {
+  margin: 4px 0 8px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.cart-item-price {
   font-size: 20px;
   font-weight: 700;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
-.quantity-controls {
+.cart-item-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
-  margin: 15px 0;
+  margin-top: 14px;
+}
+
+.cart-item-total {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cart-item-total span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.cart-item-total strong {
+  color: #0f172a;
+  font-size: 17px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------
+   QUANTITY CONTROLS
+   --------------------------------------------------------- */
+.quantity-controls {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
 }
 
 .quantity-controls button {
-  width: 35px;
-  height: 35px;
+  flex: none;
+  width: 44px;
+  height: 44px;
   border: none;
-  border-radius: 7px;
+  border-radius: 10px;
   background: #2563eb;
-  color: white;
+  color: #ffffff;
   font-size: 20px;
   font-weight: bold;
+  line-height: 1;
 }
 
 .quantity-controls button:hover {
   background: #1d4ed8;
 }
 
-.quantity-controls span {
-  font-weight: 700;
-  min-width: 25px;
-  text-align: center;
+.quantity-controls button:focus-visible,
+.remove-button:focus-visible,
+.coupon-box button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
 }
 
+.quantity-controls span {
+  min-width: 28px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* ---------------------------------------------------------
+   REMOVE
+   --------------------------------------------------------- */
 .remove-button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
   border: none;
+  border-radius: 10px;
   background: #fee2e2;
   color: #b91c1c;
-  padding: 8px 12px;
-  border-radius: 7px;
-  font-weight: 600;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .remove-button:hover {
   background: #fecaca;
 }
 
+/* ---------------------------------------------------------
+   ORDER SUMMARY
+   --------------------------------------------------------- */
 .cart-summary {
-  background: white;
+  align-self: start;
+  min-width: 0;
+  padding: 18px;
+  background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 14px;
-  padding: 25px;
-  height: fit-content;
 }
 
 .cart-summary h2 {
   margin-bottom: 25px;
+  overflow-wrap: anywhere;
 }
 
-.cart-summary > div {
+.cart-summary-row {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 15px;
+  gap: 12px;
+  margin-bottom: 14px;
+  font-size: 15px;
+}
+
+.cart-summary-row span {
+  min-width: 0;
+  color: #475569;
+  overflow-wrap: anywhere;
+}
+
+.cart-summary-row strong {
+  flex: none;
+  color: #0f172a;
+  white-space: nowrap;
 }
 
 .summary-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+  padding-top: 18px;
   border-top: 1px solid #e5e7eb;
-  padding-top: 20px;
   font-size: 20px;
+  font-weight: 700;
+}
+
+.summary-total strong {
+  flex: none;
+  white-space: nowrap;
 }
 
 .checkout-button {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  text-align: center;
-  background: #2563eb;
-  color: white;
-  padding: 14px;
+  min-width: 0;
+  min-height: 48px;
+  margin-top: 22px;
+  padding: 12px 16px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #ffffff;
   font: inherit;
   font-weight: 700;
+  text-align: center;
+  overflow-wrap: anywhere;
   cursor: pointer;
-  margin-top: 25px;
   transition: background 0.15s ease;
 }
 
@@ -123,10 +279,14 @@
   background: #1d4ed8;
 }
 
+.checkout-button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
 /* Signed-out visitors keep their cart and only sign in here, at the
    moment they actually try to complete the order. */
-.cart-summary > .cart-signin {
-  display: block;
+.cart-signin {
   margin: 16px 0 0;
   padding-top: 16px;
   border-top: 1px solid #e5e7eb;
@@ -147,17 +307,20 @@
 
 .cart-signin-login,
 .cart-signin-register {
-  flex: 1;
-  display: block;
-  padding: 11px 12px;
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
   min-height: 44px;
+  padding: 10px 8px;
   font-size: 14px;
   font-weight: 700;
   text-align: center;
   text-decoration: none;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid #cbd5e1;
-  background: #fff;
+  background: #ffffff;
   color: #0f172a;
   cursor: pointer;
 }
@@ -175,25 +338,150 @@
   background: rgba(37, 99, 235, 0.08);
 }
 
+/* ---------------------------------------------------------
+   COUPON
+   --------------------------------------------------------- */
 .coupon-box {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .coupon-box input {
-  flex: 1;
-  padding: 12px;
+  flex: 1 1 150px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
   border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  border-radius: 10px;
+  background: #ffffff;
+  font-size: 16px;
   outline: none;
 }
 
+.coupon-box input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
 .coupon-box button {
-  border: none;
-  background: #172033;
-  color: white;
+  flex: 0 0 auto;
+  min-height: 44px;
   padding: 0 18px;
-  border-radius: 8px;
+  border: none;
+  border-radius: 10px;
+  background: #172033;
+  color: #ffffff;
+  font: inherit;
+  font-size: 15px;
   font-weight: 700;
+}
+
+/* ---------------------------------------------------------
+   EMPTY / ERROR STATE
+   --------------------------------------------------------- */
+.cart-page .empty-state {
+  max-width: 460px;
+  margin-inline: auto;
+  padding: 48px 4px;
+}
+
+.cart-page .empty-state h2 {
+  font-size: 22px;
+  overflow-wrap: anywhere;
+}
+
+.cart-page .empty-state p {
+  overflow-wrap: anywhere;
+}
+
+.cart-page .empty-state .primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.cart-page .loading {
+  max-width: 460px;
+  margin-inline: auto;
+  padding: 48px 4px;
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   >= 640px - TABLET: cart item back in a row, summary full
+   width underneath.
+   ========================================================= */
+@media (min-width: 640px) {
+  .cart-layout {
+    gap: 22px;
+  }
+
+  .cart-items {
+    gap: 16px;
+  }
+
+  .cart-item {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 18px;
+  }
+
+  .cart-item-image {
+    width: 132px;
+    height: 132px;
+  }
+
+  .cart-item-title {
+    margin: 4px 0 10px;
+    font-size: 17px;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+
+  .cart-summary {
+    padding: 22px;
+  }
+
+  .cart-page .empty-state {
+    padding: 56px 8px;
+  }
+}
+
+/* =========================================================
+   >= 992px - DESKTOP: two columns, summary sticks.
+   Items ~66% / summary ~34%.
+   ========================================================= */
+@media (min-width: 992px) {
+  .cart-layout {
+    grid-template-columns: minmax(0, 1.95fr) minmax(0, 1fr);
+    gap: 30px;
+  }
+
+  .cart-item {
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .cart-item-image {
+    width: 130px;
+    height: 130px;
+  }
+
+  .cart-summary {
+    position: sticky;
+    top: calc(var(--voltix-header-height) + 20px);
+    padding: 25px;
+  }
+
+  .cart-page .empty-state {
+    padding: 60px 8px;
+  }
 }

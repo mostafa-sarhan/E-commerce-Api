@@ -58,7 +58,10 @@ function MediaPlaceholder() {
   );
 }
 
-export default function ProductCard({ product }) {
+export default function ProductCard({
+  product,
+  onToggleFavorite,
+}) {
   const { addProduct } = useCart();
   const { user } = useAuth();
   const { favorite, toggle } = useFavorite(product, user?.email);
@@ -101,6 +104,15 @@ export default function ProductCard({ product }) {
   function handleFavorite(event) {
     event.preventDefault();
     event.stopPropagation();
+
+    /* The wishlist page owns the account-side removal, so it can
+       take over the click. The filled state still comes from the
+       shared favourites store, never from a second source. */
+    if (onToggleFavorite) {
+      onToggleFavorite(product, favorite);
+      return;
+    }
+
     toggle();
   }
 

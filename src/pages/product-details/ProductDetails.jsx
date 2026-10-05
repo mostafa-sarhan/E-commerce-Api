@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import { getProductById } from "../../services/api/productApi";
 import {
@@ -360,10 +360,6 @@ export default function ProductDetails() {
         text: error?.message || "Could not add review.",
       });
     }
-  }
-
-  if (role === "admin") {
-    return <Navigate to="/admin" replace />;
   }
 
   if (loading) {

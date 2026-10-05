@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 
 import {
   useSearchParams,
-  Navigate,
 } from "react-router-dom";
 
 import {
@@ -10,15 +9,11 @@ import {
   getCategories,
 } from "../../services/api/productApi";
 
-import { useAuth } from "../../context/AuthContext";
-
 import ProductCard from "../../components/ProductCard/ProductCard";
 
 import "./Products.css";
 
 function Products() {
-  const { role } = useAuth();
-
   const [products, setProducts] =
     useState([]);
 
@@ -132,15 +127,6 @@ function Products() {
     maxPrice,
     sort,
   ]);
-
-  if (role === "admin") {
-    return (
-      <Navigate
-        to="/admin"
-        replace
-      />
-    );
-  }
 
   return (
     <main className="products-page">

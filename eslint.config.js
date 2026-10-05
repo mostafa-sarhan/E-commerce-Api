@@ -18,4 +18,14 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
+  {
+    // These run on Node, not in the browser: the serverless functions
+    // and the Vite config that mounts them in dev.
+    files: ['api/**/*.js', 'vite.config.js'],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      globals: globals.node,
+      sourceType: 'module',
+    },
+  },
 ])

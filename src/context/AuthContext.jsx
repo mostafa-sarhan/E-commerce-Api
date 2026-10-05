@@ -1,5 +1,6 @@
-import { createContext, useContext, useState } from "react";
-import { loginUser, registerUser } from "../services/api/authApi";
+import { createContext, useContext, useEffect, useState } from "react";
+import { loginUser, registerUser, verifyToken } from "../services/api/authApi";
+import { adminTestLogin } from "../services/api/adminApi";
 import { getRole, saveStoredRole } from "../utils/roles";
 
 const AuthContext = createContext();
@@ -37,6 +38,46 @@ function normalizeUser(apiUser, email, role = "customer", token = "") {
   };
 }
 
+/**
+ * Route API answers both signup and signin with a user payload of
+ * only { name, email, role } - there is no _id in it. The real id is
+ * carried inside the token that comes back, and the per-user
+ * endpoints (orders, most obviously) are keyed by that id, so it is
+ * resolved once and merged onto the stored user.
+ *
+ * This runs against the token already in localStorage, and it must
+ * never block a sign-in: any failure simply leaves _id unset.
+ */
+async function resolveUserId() {
+  if (!localStorage.getItem("token")) {
+    return null;
+  }
+
+  try {
+    const data = await verifyToken();
+
+    const id =
+      data?.decoded?.id ||
+      data?.data?.decoded?.id ||
+      data?.user?._id ||
+      data?.data?.user?._id ||
+      null;
+
+    return id ? String(id) : null;
+  } catch (error) {
+    console.warn(
+      "[auth] could not resolve the account id from the token:",
+      error?.message
+    );
+
+    return null;
+  }
+}
+
+function withResolvedId(user, id) {
+  return id ? { ...user, _id: id } : user;
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(readUser);
   const [loading, setLoading] = useState(false);
@@ -47,22 +88,48 @@ export function AuthProvider({ children }) {
     try {
       const normalizedEmail = email.trim().toLowerCase();
 
+      /* The Route API is a customer API. It has no admin account to
+         sign into, never returns an admin role, and there is no admin
+         auth endpoint to call, so an admin session cannot be minted
+         through loginUser(). The admin branch therefore goes to the
+         local test endpoint instead, which stays inert unless the
+         server has explicitly enabled it.
+
+         The customer path below this is unchanged. */
+      if (selectedRole === "admin") {
+        const data = await adminTestLogin({
+          email: normalizedEmail,
+          password,
+        });
+
+        const signedIn = {
+          ...normalizeUser(data.user, normalizedEmail, "admin"),
+          role: "admin",
+        };
+
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(signedIn));
+        saveStoredRole(normalizedEmail, "admin");
+        setUser(signedIn);
+
+        return { ...data, user: signedIn };
+      }
+
       // Customer authentication always uses the real Route API.
       const data = await loginUser({
         email: normalizedEmail,
         password,
       });
 
-      console.log("LOGIN API RESPONSE:", data);
-
       const apiUser = data?.user || data?.data?.user || {};
-        const finalUser = normalizeUser(
-          apiUser,
-          normalizedEmail,
-          "customer",
-          data.token
-        );
-      if (finalUser.role !== "customer") {
+      const signedIn = normalizeUser(
+        apiUser,
+        normalizedEmail,
+        "customer",
+        data.token
+      );
+
+      if (signedIn.role !== "customer") {
         throw new Error("This account is not a customer account.");
       }
 
@@ -71,6 +138,12 @@ export function AuthProvider({ children }) {
       }
 
       localStorage.setItem("token", data.token);
+
+      const finalUser = withResolvedId(
+        signedIn,
+        await resolveUserId()
+      );
+
       localStorage.setItem("user", JSON.stringify(finalUser));
       saveStoredRole(normalizedEmail, "customer");
       setUser(finalUser);
@@ -112,13 +185,20 @@ export function AuthProvider({ children }) {
       // redundant second signin request.
       if (data?.token) {
         const apiUser = data?.user || data?.data?.user || {};
-          const finalUser = normalizeUser(
-            apiUser,
-            normalized.email,
-            "customer",
-            data.token
-          );
+        const signedUp = normalizeUser(
+          apiUser,
+          normalized.email,
+          "customer",
+          data.token
+        );
+
         localStorage.setItem("token", data.token);
+
+        const finalUser = withResolvedId(
+          signedUp,
+          await resolveUserId()
+        );
+
         localStorage.setItem("user", JSON.stringify(finalUser));
         saveStoredRole(normalized.email, "customer");
         setUser(finalUser);
@@ -145,6 +225,32 @@ export function AuthProvider({ children }) {
     localStorage.setItem("user", JSON.stringify(final));
     setUser(final);
   }
+
+  /* Sessions created before the account id was resolved would keep
+     requesting orders as an unknown user, so the stored identity is
+     completed once on start-up instead of forcing a re-login. */
+  useEffect(() => {
+    if (!user || user._id) {
+      return;
+    }
+
+    let active = true;
+
+    resolveUserId().then((id) => {
+      if (!id || !active) {
+        return;
+      }
+
+      const resolved = { ...user, _id: id };
+
+      localStorage.setItem("user", JSON.stringify(resolved));
+      setUser(resolved);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [user]);
 
   return (
     <AuthContext.Provider

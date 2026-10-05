@@ -1,14 +1,3 @@
-/**
- * Lightweight favourites store.
- *
- * Purely a presentation concern: which products have a filled heart.
- * It is persisted to localStorage so the state survives a refresh,
- * and it emits change notifications so every mounted card stays in
- * sync. No endpoints, no context, no backend.
- *
- * The existing authenticated wishlist (wishlistApi + localStore) is
- * untouched; the product details page mirrors heart changes there.
- */
 
 const STORAGE_KEY = "voltix_favorites";
 const GUEST_OWNER = "guest";
@@ -35,7 +24,7 @@ function writeStore(store) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
   } catch {
-    /* storage unavailable - hearts stay in-memory for the session */
+    /* storage unavailable - hearts stay in memory this session */
   }
 }
 
@@ -80,6 +69,42 @@ function summarise(product) {
   };
 }
 
+export function removeFavorite(userEmail, productId) {
+  if (productId === undefined || productId === null) {
+    return false;
+  }
+
+  const owner = ownerOf(userEmail);
+  const current = getFavorites(userEmail);
+  const next = current.filter(
+    (item) => String(item.id) !== String(productId),
+  );
+
+  if (next.length === current.length) {
+    return false;
+  }
+
+  const store = readStore();
+  store[owner] = next;
+  writeStore(store);
+  emit();
+  return true;
+}
+
+export function clearFavorites(userEmail) {
+  const owner = ownerOf(userEmail);
+  const store = readStore();
+
+  if (!Array.isArray(store[owner]) || !store[owner].length) {
+    return false;
+  }
+
+  store[owner] = [];
+  writeStore(store);
+  emit();
+  return true;
+}
+
 export function toggleFavorite(userEmail, product) {
   const id = String(product?._id || product?.id || "");
 
@@ -99,6 +124,5 @@ export function toggleFavorite(userEmail, product) {
   store[owner] = next;
   writeStore(store);
   emit();
-
   return !exists;
 }

@@ -26,23 +26,18 @@ const GUEST_CART_OWNER = "guest";
 export function CartProvider({ children }) {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const { user, role } = useAuth();
 
   const cartOwner = user?.email || GUEST_CART_OWNER;
 
-  // Visitors can fill a cart before signing in, so anything collected
-  // under the guest key moves into the account on the first load.
-  function mergeGuestCartIntoAccount(email) {
-    const guestItems = getLocalCart(GUEST_CART_OWNER);
-
-    if (guestItems.length === 0) {
-      return;
-    }
-
+  // Same merge rule the guest cart has always used: identical
+  // product ids are combined, everything else is appended.
+  function mergeIntoLocalCart(email, incoming) {
     const merged = [...getLocalCart(email)];
 
-    guestItems.forEach((item) => {
+    incoming.forEach((item) => {
       const productId = String(
         item.product?.id || item.product?._id
       );
@@ -63,11 +58,87 @@ export function CartProvider({ children }) {
     });
 
     saveLocalCart(email, merged);
+  }
+
+  /* Visitors can fill a cart before signing in, so anything
+     collected under the guest key moves into the account on the
+     first load.
+
+     That transfer has to happen on the API cart, not only in local
+     storage: Route API builds the order from the server cart, so an
+     item left behind locally is dropped at checkout. Worse, a local
+     copy sharing a product id with a server line hijacks that
+     line's quantity and removal, because those look the local copy
+     up by product id first and return without calling the API.
+
+     Guest items are real API products, so each one is posted to the
+     server cart and its quantity finished with a single write.
+     Anything the server will not take stays local rather than being
+     silently dropped. */
+  async function mergeGuestCartIntoAccount(email) {
+    const guestItems = getLocalCart(GUEST_CART_OWNER);
+
+    if (guestItems.length === 0) {
+      return;
+    }
+
+    const keepLocal = [];
+
+    for (const item of guestItems) {
+      const productId = item.product?._id || item.product?.id;
+
+      const wanted = Math.max(
+        1,
+        Number(item.count || 1)
+      );
+
+      if (
+        !productId ||
+        String(productId).startsWith("local-")
+      ) {
+        keepLocal.push({ ...item });
+        continue;
+      }
+
+      try {
+        const added = await addToCart(productId);
+
+        /* The POST moves the server line by one, so the guest
+           quantity is applied with a single follow-up write. */
+        const serverCount = Number(
+          added?.data?.products?.find(
+            (entry) =>
+              String(
+                entry?.product?._id || entry?.product?.id
+              ) === String(productId)
+          )?.count || wanted
+        );
+
+        if (wanted > 1) {
+          await updateCartItem(
+            productId,
+            serverCount + wanted - 1
+          );
+        }
+      } catch (error) {
+        console.warn(
+          "[cart] guest item could not be moved to the account cart:",
+          productId,
+          error?.message
+        );
+
+        keepLocal.push({ ...item });
+      }
+    }
+
+    mergeIntoLocalCart(email, keepLocal);
+
     saveLocalCart(GUEST_CART_OWNER, []);
   }
 
   async function loadCart() {
     if (!user || role !== "customer") {
+      setError("");
       setCart({
         _id: `local-cart-${GUEST_CART_OWNER}`,
         products: getLocalCart(GUEST_CART_OWNER),
@@ -76,7 +147,7 @@ export function CartProvider({ children }) {
       return;
     }
 
-    mergeGuestCartIntoAccount(user.email);
+    await mergeGuestCartIntoAccount(user.email);
 
     const localItems = getLocalCart(user.email);
 
@@ -85,14 +156,28 @@ export function CartProvider({ children }) {
 
       const data = await getCart();
 
+      setError("");
       setCart({
-        ...(data.data || {}),
+        ...(data?.data || {}),
         products: [
-          ...(data.data?.products || []),
+          ...(data?.data?.products || []),
           ...localItems,
         ],
       });
-    } catch {
+    } catch (loadError) {
+      /* Only this device's saved lines can be shown. Saying
+         "empty cart" here would hide a failed request behind a
+         normal-looking cart. */
+      console.warn(
+        "[cart] could not load the account cart:",
+        loadError?.message
+      );
+
+      setError(
+        loadError?.message ||
+          "Your cart could not be loaded."
+      );
+
       setCart({
         _id: `local-cart-${user.email}`,
         products: localItems,
@@ -178,10 +263,12 @@ export function CartProvider({ children }) {
 
     const data = await addToCart(productId);
 
+    setError("");
+
     setCart((current) => ({
-      ...(data.data || {}),
+      ...(data?.data || {}),
       products: [
-        ...(data.data?.products || []),
+        ...(data?.data?.products || []),
         ...(current?.products || []).filter(
           (item) => item.isLocal
         ),
@@ -232,10 +319,12 @@ export function CartProvider({ children }) {
       count
     );
 
+    setError("");
+
     setCart((current) => ({
-      ...(data.data || {}),
+      ...(data?.data || {}),
       products: [
-        ...(data.data?.products || []),
+        ...(data?.data?.products || []),
         ...(current?.products || []).filter(
           (item) => item.isLocal
         ),
@@ -273,10 +362,12 @@ export function CartProvider({ children }) {
 
     const data = await removeFromCart(productId);
 
+    setError("");
+
     setCart((current) => ({
-      ...(data.data || {}),
+      ...(data?.data || {}),
       products: [
-        ...(data.data?.products || []),
+        ...(data?.data?.products || []),
         ...(current?.products || []).filter(
           (item) => item.isLocal
         ),
@@ -302,6 +393,7 @@ export function CartProvider({ children }) {
       value={{
         cart,
         loading,
+        error,
         loadCart,
         addProduct,
         changeQuantity,

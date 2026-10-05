@@ -4,6 +4,7 @@ import { CartProvider } from "../context/CartContext";
 import ProtectedRoute from "../components/ProtectedRoute";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
+import AIChatWidget from "../components/AIChat/AIChatWidget";
 import Home from "../pages/home/Home";
 import Products from "../pages/products/Products";
 import ProductDetails from "../pages/product-details/ProductDetails";
@@ -19,15 +20,15 @@ import Dashboard from "../pages/dashboard/Dashboard";
 import AdminDashboard from "../pages/admin/dashboard/AdminDashboard";
 import AdminProducts from "../pages/admin/products/AdminProducts";
 
+
+/* Only the credential screens are admin-exclusive: there is no point
+   showing a signed-in admin the login or register form. Storefront
+   pages are deliberately NOT wrapped - an admin is still allowed to
+   browse Home, Products and Wishlist, and the customer-only areas
+   below already bounce an admin to /admin through ProtectedRoute. */
 function PublicOnly({ children }) {
   const { user, role } = useAuth();
   if (user && role === "admin") return <Navigate to="/admin" replace />;
-  return children;
-}
-
-function StorePage({ children }) {
-  const { user, role } = useAuth();
-  if (role === "admin") return <Navigate to="/admin" replace />;
   return children;
 }
 
@@ -39,21 +40,22 @@ function AppShell() {
     <>
       <Navbar />
       <Routes>
-        <Route path="/" element={<PublicOnly><Home /></PublicOnly>} />
-        <Route path="/products" element={<StorePage><Products /></StorePage>} />
-        <Route path="/products/:id" element={<StorePage><ProductDetails /></StorePage>} />
+        <Route path="/" element={<Home />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/products/:id" element={<ProductDetails />} />
 
         <Route path="/login" element={<PublicOnly><Login /></PublicOnly>} />
         <Route path="/register" element={<PublicOnly><Register /></PublicOnly>} />
         <Route path="/forgot-password" element={<PublicOnly><ForgotPassword /></PublicOnly>} />
-
-        {/* Cart can be filled as a guest. Placing the order
-            requires an account, so checkout is behind the guard. */}
         <Route path="/cart" element={<Cart />} />
+
+        {/* The favourites store is owner-scoped, so a signed-out
+            visitor has a device wishlist too. Guests get the page
+            on the same terms as the guest cart. */}
+        <Route path="/wishlist" element={<Wishlist />} />
 
         <Route element={<ProtectedRoute roles={["customer"]} />}>
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
@@ -67,6 +69,10 @@ function AppShell() {
         <Route path="*" element={<Navigate to={managementMode ? "/admin" : "/"} replace />} />
       </Routes>
       {!managementMode && <Footer />}
+
+      {/* Storefront-only, on the same guard as the footer, so it stays
+          out of the admin area. */}
+      {!managementMode && <AIChatWidget />}
     </>
   );
 }

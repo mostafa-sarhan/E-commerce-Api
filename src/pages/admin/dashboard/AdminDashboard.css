@@ -10,7 +10,22 @@
   background:#111827;
   color:#fff;
   padding:25px 15px;
-  box-sizing:border-box
+  box-sizing:border-box;
+  /* Column so the session action can anchor to the bottom of the
+     sidebar instead of trailing the nav menu. */
+  display:flex;
+  flex-direction:column;
+  /* One screen tall and pinned there while the dashboard scrolls past
+     it. Sticky rather than fixed, so the flex row keeps its layout and
+     the content is never overlapped or pushed out of view.
+     align-self stops the flex stretch from overriding the height,
+     which is what keeps the sticky offset working. */
+  position:sticky;
+  top:0;
+  align-self:flex-start;
+  height:100vh;
+  overflow-y:auto;
+  overscroll-behavior:contain
 }
 
 .admin-logo {
@@ -43,6 +58,50 @@
 .admin-menu button:hover,.admin-menu button.active {
   background:#2563eb;
   color:#fff
+}
+
+/* Session action --------------------------------------------------
+   A danger action, not a nav item, so it sits apart from the blue
+   menu: quiet on the dark sidebar and only fills with red on hover. */
+.admin-logout {
+  /* Anchors to the bottom of the sidebar. margin-top:auto consumes the
+     free space, and sticky bottom keeps it on screen if the menu is
+     ever taller than the viewport and the sidebar scrolls. */
+  margin-top:auto;
+  position:sticky;
+  bottom:0;
+  /* Explicit, so the button can never collapse to nothing. */
+  width:100%;
+  flex:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  min-height:48px;
+  padding:12px 16px;
+  border:1px solid #334155;
+  border-radius:10px;
+  background:#111827;
+  color:#fca5a5;
+  font-size:15px;
+  font-weight:700;
+  cursor:pointer;
+  transition:background-color .2s ease,border-color .2s ease,color .2s ease
+}
+
+.admin-logout svg {
+  flex:none
+}
+
+.admin-logout:hover {
+  background:#dc2626;
+  border-color:#dc2626;
+  color:#fff
+}
+
+.admin-logout:focus-visible {
+  outline:2px solid #fca5a5;
+  outline-offset:2px
 }
 
 .admin-content {
@@ -360,6 +419,15 @@ td {
   }
   .admin-menu button:first-letter {
     font-size:20px
+  }
+  /* The sidebar collapses to a 75px icon rail, so the session action
+     drops its label too instead of overflowing. */
+  .admin-logout {
+    width:48px;
+    padding:0
+  }
+  .admin-logout span {
+    display:none
   }
   .admin-content {
     padding:20px

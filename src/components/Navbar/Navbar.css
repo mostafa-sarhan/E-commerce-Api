@@ -255,6 +255,34 @@
   outline: 2px solid #2563eb;
   outline-offset: 2px;
 }
+
+/* A signed-in visitor gets a way out from the header, styled as a
+   danger action so it never competes with the blue Register button. */
+.site-action-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid #fecdd3;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #e11d48;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.site-action-logout:focus-visible {
+  outline: 2px solid #e11d48;
+  outline-offset: 2px;
+}
 /* =========================================================
    HOVER (pointer devices only)
    ========================================================= */
@@ -275,6 +303,12 @@
 
   .site-action-register:hover {
     background: #1d4ed8;
+  }
+
+  .site-action-logout:hover {
+    background: #e11d48;
+    border-color: #e11d48;
+    color: #ffffff;
   }
 }
 
@@ -318,7 +352,8 @@
   }
 
   .site-nav-link-cart,
-  .site-nav-link-wishlist {
+  .site-nav-link-wishlist,
+  .site-nav-link-orders {
     padding-right: 8px;
   }
 
@@ -327,7 +362,8 @@
      Cart / Wishlist is an icon + count badge only. */
   @media (max-width: 1099px) {
     .site-nav-link-cart > span:not(.site-nav-count),
-    .site-nav-link-wishlist > span:not(.site-nav-count) {
+    .site-nav-link-wishlist > span:not(.site-nav-count),
+    .site-nav-link-orders > span:not(.site-nav-count) {
       position: absolute;
       width: 1px;
       height: 1px;
@@ -339,7 +375,8 @@
     }
 
     .site-nav-link-cart,
-    .site-nav-link-wishlist {
+    .site-nav-link-wishlist,
+    .site-nav-link-orders {
       gap: 6px;
       padding-inline: 8px;
     }
@@ -359,6 +396,12 @@
   .site-action-register {
     min-height: 40px;
     padding: 0 18px;
+    border-radius: 999px;
+    font-size: 14px;
+  }
+
+  .site-action-logout {
+    padding: 0 16px;
     border-radius: 999px;
     font-size: 14px;
   }

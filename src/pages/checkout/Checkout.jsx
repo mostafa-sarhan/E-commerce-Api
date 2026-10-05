@@ -1,21 +1,15 @@
 import { useState } from "react";
-
 import { useNavigate } from "react-router-dom";
-
 import { useCart } from "../../context/CartContext";
-
 import {
   createCashOrder,
   createCashOrderV1,
   createCheckoutSession,
 } from "../../services/api/orderApi";
-
 import {
   clearLocalCart,
 } from "../../services/localStore";
-
 import { useAuth } from "../../context/AuthContext";
-
 import "./Checkout.css";
 
 export default function Checkout() {
@@ -113,19 +107,15 @@ export default function Checkout() {
           d?.session?.url ||
           d?.data?.session?.url ||
           d?.url;
-
         if (!url) {
           throw new Error(
             "Stripe checkout URL was not returned."
           );
         }
-
         window.location.href = url;
         return;
       }
-
       let apiOrder = null;
-
       try {
         apiOrder =
           await createCashOrder(
@@ -139,7 +129,6 @@ export default function Checkout() {
             form
           );
       }
-
       if (
         !apiOrder?.data?._id &&
         !apiOrder?.order?._id &&

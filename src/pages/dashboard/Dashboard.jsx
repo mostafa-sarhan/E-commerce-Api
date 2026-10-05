@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthContext";
 
-import { getUserOrders } from "../../services/api/orderApi";
+import { getUserOrders, toOrderArray } from "../../services/api/orderApi";
 
 import { getWishlist } from "../../services/api/wishlistApi";
 
@@ -28,19 +28,15 @@ function CustomerDashboard() {
         await Promise.allSettled([
           user?._id
             ? getUserOrders(user._id)
-            : Promise.resolve({
-                data: [],
-              }),
+            : Promise.resolve([]),
           getWishlist(),
           getProducts("?limit=1"),
         ]);
 
       const orderData =
-  orders.status === "fulfilled"
-    ? Array.isArray(orders.value)
-      ? orders.value
-      : orders.value?.data || []
-    : [];
+        orders.status === "fulfilled"
+          ? toOrderArray(orders.value)
+          : [];
 
       const wishlistData =
         wishlist.status === "fulfilled"

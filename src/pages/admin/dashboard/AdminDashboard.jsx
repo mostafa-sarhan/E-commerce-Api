@@ -10,6 +10,8 @@ import { getAllOrders } from "../../../services/api/orderApi";
 
 import { getUsers } from "../../../services/api/userApi";
 
+import { useAuth } from "../../../context/AuthContext";
+
 import {
   getAllReviews,
   payOrder,
@@ -20,6 +22,7 @@ import "./AdminDashboard.css";
 
 function AdminDashboard() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const [activePage, setActivePage] = useState("dashboard");
   const [products, setProducts] = useState([]);
@@ -159,6 +162,37 @@ function AdminDashboard() {
             </button>
           ))}
         </div>
+
+        {/* Signing out is the session teardown AuthContext already
+            owns: it drops the stored token and user and flips the
+            context user to null. Because /admin sits behind
+            ProtectedRoute, that null state sends the admin to /login on
+            the next render, so this button only has to call it - no
+            token handling or navigation belongs here. */}
+        <button
+          type="button"
+          className="admin-logout"
+          onClick={() => logout()}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <path d="M16 17l5-5-5-5" />
+            <path d="M21 12H9" />
+          </svg>
+
+          <span>Log Out</span>
+        </button>
       </aside>
 
       <main className="admin-content">

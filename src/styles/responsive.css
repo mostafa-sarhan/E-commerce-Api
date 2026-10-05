@@ -5,7 +5,14 @@
    .products-grid is deliberately absent: it now owns a single
    explicit breakpoint ladder in pages/products/Products.css
    (1 / 2 / 3 / 4 columns). Legacy max-width overrides here used
-   to fight those rules and force 4 columns down to 320px. */
+   to fight those rules and force 4 columns down to 320px.
+
+   .cart-layout and .cart-item are deliberately absent too: the
+   cart now owns its own ladder in pages/cart/Cart.css
+   (< 640 / 640-991 / >= 992). The rules removed here fired at
+   800px and 500px, so they left a dead 501-800px band with the
+   summary squeezed beside the items and the cart image still
+   fixed at 130px, while also fighting Cart.css below 500px. */
 
 @media (max-width: 1000px) {
   .dashboard-grid {
@@ -15,9 +22,6 @@
 
 @media (max-width: 800px) {
   .checkout-layout {
-    grid-template-columns: 1fr;
-  }
-  .cart-layout {
     grid-template-columns: 1fr;
   }
   .footer-content {
@@ -31,15 +35,5 @@
   }
   .order-header {
     flex-direction: column;
-  }
-}
-
-@media (max-width: 500px) {
-  .cart-item {
-    flex-direction: column;
-  }
-  .cart-item img {
-    width: 100%;
-    height: 180px;
   }
 }

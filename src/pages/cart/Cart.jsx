@@ -16,6 +16,8 @@ function Cart() {
   const {
     cart,
     loading,
+    error,
+    loadCart,
     changeQuantity,
     removeProduct,
   } = useCart();
@@ -27,6 +29,8 @@ function Cart() {
   const [coupon, setCoupon] = useState("");
   const [couponLoading, setCouponLoading] =
     useState(false);
+  const [couponNotice, setCouponNotice] =
+    useState(null);
 
   const hasLocalItems =
     productsHaveLocal(cart);
@@ -37,6 +41,21 @@ function Cart() {
     ).some(
       (item) => item.isLocal
     );
+  }
+
+  /* The store API hands back a populated brand document while the
+     device cart stores the plain name, so the reference is resolved
+     to text here instead of being rendered as an object. */
+  function brandName(product) {
+    const brand = product?.brand;
+
+    if (!brand) {
+      return "";
+    }
+
+    return typeof brand === "string"
+      ? brand
+      : brand.name || "";
   }
 
   if (loading) {
@@ -54,8 +73,6 @@ function Cart() {
   const itemId = (item) =>
     item?.product?._id || item?.product?.id;
 
-  /* Signing in is only needed to place the order, never to build
-     a cart, so the checkout hand-off remembers where to return. */
   function handleCompleteCart() {
     if (user) {
       navigate("/checkout");
@@ -98,27 +115,42 @@ function Cart() {
 
   async function handleCoupon() {
     if (!coupon.trim()) {
-      return alert(
+      return setCouponNotice(
         "Please enter a coupon code."
       );
     }
 
     if (hasLocalItems) {
-      return alert(
+      return setCouponNotice(
         "Coupons are available only for store API products."
       );
     }
 
     try {
       setCouponLoading(true);
+      setCouponNotice(null);
 
       await applyCoupon(
         coupon.trim()
       );
 
-      window.location.reload();
-    } catch (error) {
-      alert(error.message);
+      /* The discounted total arrives with the cart response, so the
+         cart is re-read instead of reloading the whole document. */
+      await loadCart();
+
+      setCouponNotice(
+        "Coupon applied to your cart."
+      );
+    } catch (couponError) {
+      console.warn(
+        "[cart] coupon was rejected:",
+        couponError?.message
+      );
+
+      setCouponNotice(
+        couponError?.message ||
+          "That coupon could not be applied."
+      );
     } finally {
       setCouponLoading(false);
     }
@@ -132,7 +164,17 @@ function Cart() {
         <h1>Shopping Cart</h1>
       </div>
 
-      {!products.length ? (
+      {/* A failed load is reported on its own, never as an
+          empty cart, so the two states stay distinguishable. */}
+      {error ? (
+        <div className="empty-state">
+          <h2>Your cart could not be loaded</h2>
+
+          <p>{error}</p>
+        </div>
+      ) : null}
+
+      {!products.length && !error ? (
         <div className="empty-state">
           <h2>Your cart is empty</h2>
 
@@ -157,62 +199,107 @@ function Cart() {
                 key={itemId(item)}
               >
                 <img
+                  className="cart-item-image"
                   src={
                     item.product.imageCover
                   }
                   alt={
                     item.product.title
                   }
+                  loading="lazy"
                 />
 
                 <div className="cart-item-info">
-                  <h3>
+                  {/* The eyebrow row is only rendered when the
+                      product actually carries a brand, so the
+                      title never shifts between items. */}
+                  {brandName(item.product) ? (
+                    <p className="cart-item-eyebrow">
+                      {brandName(item.product)}
+                    </p>
+                  ) : null}
+
+                  <h3
+                    className="cart-item-title"
+                    title={
+                      item.product.title
+                    }
+                  >
                     {item.product.title}
                   </h3>
 
-                  <p>
+                  <p className="cart-item-price">
                     ${item.price}
                   </p>
 
-                  <div className="quantity-controls">
-                    <button
-                      onClick={() =>
-                        changeQuantity(
-                          itemId(item),
-                          Math.max(
-                            1,
-                            item.count - 1
+                  <div className="cart-item-actions">
+                    <div className="quantity-controls">
+                      <button
+                        type="button"
+                        aria-label={
+                          "Decrease quantity of " +
+                          item.product.title
+                        }
+                        onClick={() =>
+                          changeQuantity(
+                            itemId(item),
+                            Math.max(
+                              1,
+                              item.count - 1
+                            )
                           )
-                        )
-                      }
-                    >
-                      −
-                    </button>
+                        }
+                      >
+                        −
+                      </button>
 
-                    <span>
-                      {item.count}
-                    </span>
+                      <span>
+                        {item.count}
+                      </span>
+
+                      <button
+                        type="button"
+                        aria-label={
+                          "Increase quantity of " +
+                          item.product.title
+                        }
+                        onClick={() =>
+                          changeQuantity(
+                            itemId(item),
+                            item.count + 1
+                          )
+                        }
+                      >
+                        +
+                      </button>
+                    </div>
 
                     <button
+                      type="button"
+                      className="remove-button"
+                      aria-label={
+                        "Remove " +
+                        item.product.title +
+                        " from cart"
+                      }
                       onClick={() =>
-                        changeQuantity(
-                          itemId(item),
-                          item.count + 1
-                        )
+                        removeProduct(itemId(item))
                       }
                     >
-                      +
+                      Remove
                     </button>
-                  </div>
 
-                  <button
-                    className="remove-button"
-                    onClick={() =>
-                      removeProduct(itemId(item))
-                    }
-                  >
-                    Remove
-                  </button>
+                    <div className="cart-item-total">
+                      <span>Line total</span>
+
+                      <strong>
+                        ${(
+                          Number(item.price || 0) *
+                          item.count
+                        ).toFixed(2)}
+                      </strong>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
@@ -244,7 +331,15 @@ function Cart() {
               </div>
             )}
 
-            <div>
+            {/* Coupon outcome is shown in place of a browser
+                dialog so the reason stays next to the field. */}
+            {couponNotice ? (
+              <div className="cart-signin">
+                <p>{couponNotice}</p>
+              </div>
+            ) : null}
+
+            <div className="cart-summary-row">
               <span>Subtotal</span>
 
               <strong>
@@ -252,7 +347,7 @@ function Cart() {
               </strong>
             </div>
 
-            <div>
+            <div className="cart-summary-row">
               <span>Discount</span>
 
               <strong>
@@ -260,7 +355,7 @@ function Cart() {
               </strong>
             </div>
 
-            <div>
+            <div className="cart-summary-row">
               <span>Shipping</span>
 
               <strong>
