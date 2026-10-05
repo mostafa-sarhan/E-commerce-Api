@@ -130,6 +130,16 @@ function Navbar() {
             Products
           </NavLink>
 
+          {user && (
+          <NavLink
+              to="/dashboard"
+              className="site-nav-link"
+              onClick={closeMenu}
+            >
+              Dashboard
+            </NavLink>
+          )}
+
           <WishlistPanel
             userEmail={user?.email}
             onNavigate={closeMenu}
@@ -152,22 +162,36 @@ function Navbar() {
           </NavLink>
 
           <div className="site-nav-actions">
+          {user ? (
             <Link
-              to="/login"
-              className="site-action-login"
+              to="/profile"
+              className="site-action-profile"
               onClick={closeMenu}
+              title="My Profile"
+              aria-label="My Profile"
             >
-              Login
+              👤
             </Link>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="site-action-login"
+                onClick={closeMenu}
+              >
+                Login
+              </Link>
 
-            <Link
-              to="/register"
-              className="site-action-register"
-              onClick={closeMenu}
-            >
-              Register
-            </Link>
-          </div>
+              <Link
+                to="/register"
+                className="site-action-register"
+                onClick={closeMenu}
+              >
+                Register
+              </Link>
+            </>
+          )}
+        </div>
         </nav>
       </div>
     </header>

@@ -221,6 +221,32 @@
   box-shadow: 0 6px 14px rgba(37, 99, 235, 0.22);
 }
 
+  .site-action-profile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #334155;
+  font-size: 20px;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.site-action-profile:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
 /* =========================================================
    HOVER (pointer devices only)
    ========================================================= */
